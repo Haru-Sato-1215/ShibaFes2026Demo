@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MY CARD GAME</title>
+  <style>
+/* ===== 基本設定 ===== */
+:root {
+  --bg1: #2a1050;
+  --bg2: #5b1a8f;
+  --pink: #ff5fb0;
+  --cyan: #4de3ff;
+  --yellow: #ffe45c;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+  background: linear-gradient(160deg, var(--bg1), var(--bg2));
+  color: #fff;
+  display: flex;
+  justify-content: center;
+}
+
+/* ===== 画面切り替え：activeが付いた画面だけ表示 ===== */
+.screen {
+  display: none;
+  width: 100%;
+  max-width: 430px;
+  min-height: 100%;
+  padding: 32px 20px calc(32px + env(safe-area-inset-bottom, 0px));
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.screen.active { display: flex; }
+
+h2 { margin: 0; font-size: 22px; color: var(--yellow); }
+h3 { margin: 4px 0 0; font-size: 15px; align-self: flex-start; color: var(--cyan); }
+
+/* ===== タイトル ===== */
+#screen-title { justify-content: center; gap: 36px; text-align: center; }
+.logo {
+  font-size: 48px; line-height: 1.15; margin: 0; letter-spacing: 2px;
+  background: linear-gradient(90deg, var(--pink), var(--yellow), var(--cyan));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 4px 0 rgba(0,0,0,.3));
+}
+.sub { font-size: 18px; margin: 0; }
+
+/* ===== ボタン ===== */
+.btn {
+  flex: 1;
+  min-height: 56px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 30px;
+  font-size: 18px; font-weight: bold; color: #fff;
+  background: linear-gradient(180deg, var(--pink), #d63a8f);
+  box-shadow: 0 5px 0 #8f1f5e;
+  font-family: inherit;
+}
+.btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #8f1f5e; }
+.btn.big { flex: none; min-width: 240px; min-height: 68px; font-size: 24px; }
+.btn.sub-btn { background: linear-gradient(180deg, #6f7bd9, #4a53a8); box-shadow: 0 5px 0 #2c3170; }
+.row { display: flex; gap: 12px; width: 100%; margin-top: auto; }
+
+/* ===== ドットキャンバス ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  width: 100%; max-width: 340px; aspect-ratio: 1;
+  gap: 1px; background: #888; border: 4px solid #fff; border-radius: 8px;
+  touch-action: none; /* ドラッグ塗り中に画面がスクロールしないように */
+}
+.cell { background: #3a3a5c; }
+
+/* ===== カラーパレット ===== */
+.palette { display: flex; gap: 12px; }
+.swatch {
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 4px solid rgba(255,255,255,.4);
+}
+.swatch.selected { border-color: #fff; transform: scale(1.2); box-shadow: 0 0 12px #fff; }
+
+/* ===== エフェクト・サウンド選択 ===== */
+.options { display: flex; flex-wrap: wrap; gap: 10px; width: 100%; }
+.opt {
+  flex: 1 1 28%; min-height: 84px;
+  background: rgba(255,255,255,.12);
+  border: 3px solid transparent; border-radius: 16px;
+  color: #fff; font-size: 14px; font-family: inherit;
+}
+.opt .ico { display: block; font-size: 32px; }
+.opt.selected { border-color: var(--yellow); background: rgba(255,228,92,.25); }
+
+/* ===== 名前入力 ===== */
+#name-input {
+  width: 100%; padding: 16px; font-size: 22px; text-align: center;
+  border: 4px solid var(--cyan); border-radius: 16px; font-family: inherit;
+}
+.count { margin: -8px 0 0; font-size: 16px; }
+.symbols { display: flex; gap: 8px; }
+.symbols button {
+  width: 46px; height: 46px; font-size: 22px; border-radius: 12px;
+  border: none; background: rgba(255,255,255,.9); color: var(--bg2);
+}
+
+/* ===== カード（トレカ風・角は四角） ===== */
+.card {
+  position: relative; overflow: hidden;
+  width: 100%; max-width: 320px; padding: 9px;
+  /* 金色の外枠 */
+  background: linear-gradient(135deg, #fff2a8, #d9a520 30%, #fff2a8 50%, #c48a10 75%, #ffe680);
+  box-shadow: 0 0 26px rgba(255,228,92,.6), 0 8px 20px rgba(0,0,0,.4);
+  color: #2b0f4f;
+}
+.card-inner {
+  padding: 10px;
+  background: linear-gradient(160deg, #ffd1ec, #cbb8ff 45%, #b6f0ff);
+  border: 2px solid #8a6410;
+}
+.card-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 10px; background: linear-gradient(90deg, #fff, #ffe9f6);
+  border: 2px solid #8a6410;
+}
+.card-name { font-size: 21px; font-weight: bold; white-space: nowrap; overflow: hidden; }
+.card-star { color: #e8a800; font-size: 22px; }
+.art { margin-top: 8px; padding: 4px; background: linear-gradient(135deg, #d9a520, #fff2a8, #c48a10); border: 2px solid #8a6410; }
+#card-canvas { display: block; width: 100%; aspect-ratio: 1; background: #3a3a5c; image-rendering: pixelated; }
+.card-type { margin: 6px 0; font-size: 10px; letter-spacing: 3px; text-align: center; font-weight: bold; }
+.card-bottom { display: flex; gap: 8px; align-items: stretch; }
+.card-skill { flex: 1; padding: 6px 8px; background: rgba(255,255,255,.85); border: 2px solid #8a6410; font-size: 13px; }
+.skill-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px dashed #b89a4a; }
+.skill-row b { font-size: 10px; letter-spacing: 1px; color: #8a4fc0; }
+.cno { margin-top: 4px; font-size: 10px; text-align: right; color: #7a5c14; }
+.qr-mini {
+  position: relative; z-index: 3; /* エフェクトより手前でタップできるように */
+  padding: 4px; border: 2px solid #8a6410; border-radius: 0;
+  background: #fff; color: #3a1466; font-family: inherit;
+}
+.qr-mini small { display: block; font-size: 9px; font-weight: bold; }
+#qr-small canvas { display: block; width: 68px; height: 68px; }
+.hint { margin: 0; font-size: 15px; text-align: center; line-height: 1.5; }
+
+/* ホログラム風のキラッと光る帯 */
+.holo {
+  position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.55) 48%, rgba(120,255,255,.35) 52%, transparent 65%);
+  background-size: 250% 100%; mix-blend-mode: soft-light;
+  animation: shine 3.2s ease-in-out infinite;
+}
+@keyframes shine { from { background-position: 130% 0; } to { background-position: -30% 0; } }
+
+/* エフェクト用アニメーション（カード上に絵文字が舞う） */
+.fx { position: absolute; inset: 0; pointer-events: none; }
+.fx span { position: absolute; font-size: 26px; animation: float 2.4s ease-in infinite; }
+@keyframes float {
+  from { transform: translateY(0) scale(.6); opacity: 1; }
+  to   { transform: translateY(-80px) scale(1.3); opacity: 0; }
+}
+
+/* ===== QR拡大表示 ===== */
+.modal {
+  display: none; position: fixed; inset: 0; z-index: 10;
+  background: rgba(10,0,30,.85); align-items: center; justify-content: center;
+}
+.modal.open { display: flex; }
+.modal-box { background: #fff; color: #3a1466; padding: 18px; border-radius: 20px; text-align: center; width: min(92vw, 400px); }
+.modal-box p { margin: 10px 0 14px; font-weight: bold; }
+.modal-box .btn { width: 100%; flex: none; }
+#qr-big canvas { display: block; width: 100%; height: auto; }
+
+</style>
+</head>
+<body>
+
+  <!-- 1. タイトル画面 -->
+  <section id="screen-title" class="screen active">
+    <h1 class="logo">MY CARD<br>GAME</h1>
+    <p class="sub">あなただけのカードをつくろう</p>
+    <button class="btn big" id="btn-start">スタート</button>
+  </section>
+
+  <!-- 2. ドット絵作成画面 -->
+  <section id="screen-draw" class="screen">
+    <h2>① ドットえをかこう</h2>
+    <div id="grid" class="grid"></div>
+    <div id="palette" class="palette"></div>
+    <div class="row">
+      <button class="btn sub-btn" id="btn-clear">ぜんぶけす</button>
+      <button class="btn" id="btn-draw-next">つぎへ</button>
+    </div>
+  </section>
+
+  <!-- 3. カスタマイズ画面 -->
+  <section id="screen-custom" class="screen">
+    <h2>② エフェクトとサウンド</h2>
+    <h3>エフェクト</h3>
+    <div id="effects" class="options"></div>
+    <h3>サウンド（タップで試聴）</h3>
+    <div id="sounds" class="options"></div>
+    <div class="row">
+      <button class="btn sub-btn" data-back="screen-draw">もどる</button>
+      <button class="btn" id="btn-custom-next">つぎへ</button>
+    </div>
+  </section>
+
+  <!-- 4. 名前入力画面 -->
+  <section id="screen-name" class="screen">
+    <h2>③ カードのなまえ</h2>
+    <input id="name-input" type="text" maxlength="10" placeholder="なまえ（10もじまで）" autocomplete="off">
+    <p class="count"><span id="name-count">0</span> / 10</p>
+    <!-- 記号ボタン：タップで入力欄に追加 -->
+    <div class="symbols" id="symbols"></div>
+    <div class="row">
+      <button class="btn sub-btn" data-back="screen-custom">もどる</button>
+      <button class="btn" id="btn-make">カードをつくる</button>
+    </div>
+  </section>
+
+  <!-- 5. カード完成画面 -->
+  <section id="screen-card" class="screen">
+    <div class="card" id="card">
+      <div class="card-inner">
+        <!-- 上：名前プレート -->
+        <div class="card-head">
+          <span class="card-name" id="card-name"></span>
+          <span class="card-star">★</span>
+        </div>
+        <!-- 中：ドット絵イラスト枠 -->
+        <div class="art"><canvas id="card-canvas" width="200" height="200"></canvas></div>
+        <div class="card-type">ORIGINAL CARD</div>
+        <!-- 下：効果表示（左）とQR（右） -->
+        <div class="card-bottom">
+          <div class="card-skill">
+            <div class="skill-row"><b>EFFECT</b><span id="card-effect"></span></div>
+            <div class="skill-row"><b>SOUND</b><span id="card-sound"></span></div>
+            <div class="cno" id="card-no"></div>
+          </div>
+          <button class="qr-mini" id="qr-mini" aria-label="QRコードを大きく表示">
+            <div id="qr-small"></div>
+            <small>タップでQR</small>
+          </button>
+        </div>
+      </div>
+      <div class="holo"></div>
+      <div class="fx" id="fx"></div>
+    </div>
+    <p class="hint">みぎしたのQRをタップすると<br>おおきくなるよ！</p>
+    <button class="btn sub-btn" id="btn-restart">もういちどつくる</button>
+
+    <!-- QR拡大表示（ふだんは非表示） -->
+    <div class="modal" id="modal">
+      <div class="modal-box">
+        <div id="qr-big"></div>
+        <p>ゲームでよみこんでね！</p>
+        <button class="btn" id="btn-close">とじる</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QRコード生成（自作・外部ライブラリ不要） -->
+  <script>
+// ============================================================
+// qr.js : 外部ライブラリ不要の小さなQRコード生成 (バイトモード / 誤り訂正L / バージョン1〜9)
+// 使い方: drawQR(表示先の要素, "文字列")  ※日本語はUTF-8で入る
+// ============================================================
+(function () {
+  // バージョンごとの [誤り訂正バイト数/ブロック, ブロック数, データバイト数/ブロック]
+  const SPEC = [null, [7,1,19],[10,1,34],[15,1,55],[20,1,80],[26,1,108],[18,2,68],[20,2,78],[24,2,97],[30,2,116]];
+  const ALIGN = [null, [], [6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46]];
+
+  // --- ガロア体GF(256)（リード・ソロモン符号の計算用）---
+  const EXP = [], LOG = [];
+  for (let i = 0, x = 1; i < 256; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 256) x ^= 0x11d; }
+  const mul = (a, b) => (a && b ? EXP[(LOG[a] + LOG[b]) % 255] : 0);
+
+  // データにrs誤り訂正バイトを計算
+  function rsRemainder(data, ec) {
+    let gen = [1];
+    for (let i = 0; i < ec; i++) {
+      const next = new Array(gen.length + 1).fill(0);
+      gen.forEach((g, j) => { next[j] ^= g; next[j + 1] ^= mul(g, EXP[i]); });
+      gen = next;
+    }
+    const res = data.concat(new Array(ec).fill(0));
+    for (let i = 0; i < data.length; i++) {
+      const c = res[i];
+      if (c) gen.forEach((g, j) => { res[i + j] ^= mul(g, c); });
+    }
+    return res.slice(data.length);
+  }
+
+  // 文字列 → 最終的なコードワード列（データ＋誤り訂正を交互配置）
+  function makeCodewords(bytes, v) {
+    const [ec, nb, per] = SPEC[v];
+    const bits = [];
+    const put = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+    put(4, 4); put(bytes.length, 8);            // モード(バイト) と 長さ
+    bytes.forEach((b) => put(b, 8));
+    const cap = nb * per * 8;
+    for (let i = 0; i < 4 && bits.length < cap; i++) bits.push(0); // 終端
+    while (bits.length % 8) bits.push(0);
+    const data = [];
+    for (let i = 0; i < bits.length; i += 8) data.push(parseInt(bits.slice(i, i + 8).join(""), 2));
+    for (let p = 0; data.length < nb * per; p++) data.push(p % 2 ? 0x11 : 0xec); // 埋めバイト
+    const blocks = [], ecs = [];
+    for (let b = 0; b < nb; b++) {
+      const d = data.slice(b * per, (b + 1) * per);
+      blocks.push(d); ecs.push(rsRemainder(d, ec));
+    }
+    const out = [];
+    for (let i = 0; i < per; i++) blocks.forEach((b) => out.push(b[i]));
+    for (let i = 0; i < ec; i++) ecs.forEach((e) => out.push(e[i]));
+    return out;
+  }
+
+  const bchLen = (x) => { let n = 0; while (x) { n++; x >>= 1; } return n; };
+
+  // 指定マスクでQRの白黒マトリクスを作る
+  function build(cw, v, mask) {
+    const n = 17 + 4 * v;
+    const m = Array.from({ length: n }, () => new Array(n).fill(null));
+    const set = (r, c, val) => { if (r >= 0 && c >= 0 && r < n && c < n) m[r][c] = val; };
+
+    // 位置検出パターン（3隅）＋周りの白い枠
+    const finder = (r0, c0) => {
+      for (let r = -1; r <= 7; r++) for (let c = -1; c <= 7; c++) {
+        const inSq = r >= 0 && r <= 6 && c >= 0 && c <= 6;
+        const dark = inSq && (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4));
+        set(r0 + r, c0 + c, dark);
+      }
+    };
+    finder(0, 0); finder(0, n - 7); finder(n - 7, 0);
+
+    // 位置合わせパターン
+    const ap = ALIGN[v];
+    ap.forEach((ar) => ap.forEach((ac) => {
+      if (m[ar][ac] !== null) return; // 位置検出パターンと重なる所は除く
+      for (let r = -2; r <= 2; r++) for (let c = -2; c <= 2; c++)
+        set(ar + r, ac + c, Math.max(Math.abs(r), Math.abs(c)) !== 1);
+    }));
+
+    // タイミングパターン
+    for (let i = 8; i < n - 8; i++) { if (m[i][6] === null) m[i][6] = i % 2 === 0; if (m[6][i] === null) m[6][i] = i % 2 === 0; }
+
+    // 形式情報（誤り訂正L=01 + マスク番号）
+    let d = ((1 << 3) | mask) << 10, g = d;
+    while (bchLen(g) >= 11) g ^= 0x537 << (bchLen(g) - 11);
+    const fmt = (((1 << 3) | mask) << 10 | g) ^ 0x5412;
+    for (let i = 0; i < 15; i++) {
+      const bit = ((fmt >> i) & 1) === 1;
+      if (i < 6) m[i][8] = bit; else if (i < 8) m[i + 1][8] = bit; else m[n - 15 + i][8] = bit;
+      if (i < 8) m[8][n - i - 1] = bit; else if (i < 9) m[8][15 - i] = bit; else m[8][15 - i - 1] = bit;
+    }
+    m[n - 8][8] = true; // 固定の黒マス
+
+    // バージョン情報（7以上）
+    if (v >= 7) {
+      let x = v << 12, y = x;
+      while (bchLen(y) >= 13) y ^= 0x1f25 << (bchLen(y) - 13);
+      const vi = (v << 12) | y;
+      for (let i = 0; i < 18; i++) {
+        const bit = ((vi >> i) & 1) === 1;
+        m[Math.floor(i / 3)][(i % 3) + n - 11] = bit;
+        m[(i % 3) + n - 11][Math.floor(i / 3)] = bit;
+      }
+    }
+
+    // データを右下からジグザグに配置（マスク適用）
+    const maskFn = [
+      (r, c) => (r + c) % 2 === 0, (r, c) => r % 2 === 0, (r, c) => c % 3 === 0,
+      (r, c) => (r + c) % 3 === 0, (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0,
+      (r, c) => ((r * c) % 2) + ((r * c) % 3) === 0, (r, c) => (((r * c) % 2) + ((r * c) % 3)) % 2 === 0,
+      (r, c) => (((r * c) % 3) + ((r + c) % 2)) % 2 === 0,
+    ][mask];
+    let inc = -1, row = n - 1, bit = 7, idx = 0;
+    for (let col = n - 1; col > 0; col -= 2) {
+      if (col === 6) col--;
+      for (;;) {
+        for (let k = 0; k < 2; k++) {
+          if (m[row][col - k] === null) {
+            let dark = idx < cw.length && ((cw[idx] >>> bit) & 1) === 1;
+            if (maskFn(row, col - k)) dark = !dark;
+            m[row][col - k] = dark;
+            if (--bit < 0) { idx++; bit = 7; }
+          }
+        }
+        row += inc;
+        if (row < 0 || row >= n) { row -= inc; inc = -inc; break; }
+      }
+    }
+    return m;
+  }
+
+  // 見づらさの減点（連続した同色 と 同色ブロック）。少ないマスクを選ぶ
+  function penalty(m) {
+    const n = m.length; let p = 0;
+    for (let a = 0; a < n; a++) for (const rowMode of [true, false]) {
+      let run = 1;
+      for (let b = 1; b < n; b++) {
+        const cur = rowMode ? m[a][b] : m[b][a], prev = rowMode ? m[a][b - 1] : m[b - 1][a];
+        if (cur === prev) { run++; if (run === 5) p += 3; else if (run > 5) p++; } else run = 1;
+      }
+    }
+    for (let r = 0; r < n - 1; r++) for (let c = 0; c < n - 1; c++)
+      if (m[r][c] === m[r][c + 1] && m[r][c] === m[r + 1][c] && m[r][c] === m[r + 1][c + 1]) p += 3;
+    return p;
+  }
+
+  // 公開関数：要素の中にQRコード(canvas)を描く
+  window.drawQR = function (el, text) {
+    const bytes = Array.from(new TextEncoder().encode(text)); // UTF-8
+    let v = 1;
+    while (v <= 9 && bytes.length + 2 > SPEC[v][1] * SPEC[v][2]) v++;
+    if (v > 9) throw new Error("データが大きすぎます(" + bytes.length + "バイト)");
+    const cw = makeCodewords(bytes, v);
+    let best = null, bestP = Infinity;
+    for (let mask = 0; mask < 8; mask++) {
+      const m = build(cw, v, mask), p = penalty(m);
+      if (p < bestP) { bestP = p; best = m; }
+    }
+    const n = best.length, quiet = 4, cell = Math.max(1, Math.floor(480 / (n + quiet * 2)));
+    const size = (n + quiet * 2) * cell;
+    const cv = document.createElement("canvas");
+    cv.width = cv.height = size;
+    const ctx = cv.getContext("2d");
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = "#000";
+    best.forEach((row, r) => row.forEach((d, c) => { if (d) ctx.fillRect((c + quiet) * cell, (r + quiet) * cell, cell, cell); }));
+    cv.style.imageRendering = "pixelated";
+    el.innerHTML = ""; el.appendChild(cv);
+  };
+})();
+
+</script>
+  <script>
+// ============================================================
+// MY CARD GAME - カード作成部分
+// ============================================================
+
+// ---------- 設定データ ----------
+// 色（0 = 未塗り、1〜6 = 下の色）
+const COLORS = ["#3a3a5c", "#ff4d4d", "#4d7dff", "#3ddc6a", "#ffe45c", "#000000", "#ffffff"];
+const COLOR_NAMES = ["", "赤", "青", "緑", "黄", "黒", "白"];
+
+// エフェクト（配列の番号がJSONの "effect" の値になる）
+const EFFECTS = [
+  { name: "炎",   icon: "🔥" },
+  { name: "雷",   icon: "⚡" },
+  { name: "星",   icon: "⭐" },
+  { name: "風",   icon: "🌪️" },
+  { name: "爆発", icon: "💥" },
+];
+
+// サウンド（配列の番号がJSONの "sound" の値になる）
+// freq: 周波数の変化(開始→終了Hz), type: 波形, dur: 長さ(秒)
+const SOUNDS = [
+  { name: "シュッ", icon: "💨", type: "sawtooth", from: 1800, to: 300,  dur: 0.15 },
+  { name: "キラ",   icon: "✨", type: "sine",     from: 1200, to: 2400, dur: 0.35 },
+  { name: "ドン",   icon: "🥁", type: "square",   from: 200,  to: 40,   dur: 0.30 },
+  { name: "ピコ",   icon: "🎮", type: "square",   from: 800,  to: 1200, dur: 0.12 },
+  { name: "バシュ", icon: "🚀", type: "sawtooth", from: 300,  to: 1600, dur: 0.30 },
+];
+
+const SYMBOLS = ["☆", "★", "♪", "♡", "！", "？"];
+const SIZE = 10; // 10×10マス
+
+// ---------- 作成中のカードデータ ----------
+let state = {
+  pixels: new Array(SIZE * SIZE).fill(0),
+  color: 1,
+  effect: 0,
+  sound: 0,
+};
+
+// ---------- 便利関数 ----------
+const $ = (id) => document.getElementById(id);
+
+// 画面を切り替える
+function show(id) {
+  document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+// ---------- 効果音（Web Audioで合成。音声ファイル不要） ----------
+let audioCtx = null;
+function playSound(i) {
+  const s = SOUNDS[i];
+  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const t = audioCtx.currentTime;
+  osc.type = s.type;
+  osc.frequency.setValueAtTime(s.from, t);
+  osc.frequency.exponentialRampToValueAtTime(s.to, t + s.dur);
+  gain.gain.setValueAtTime(0.25, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + s.dur);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + s.dur);
+}
+
+// ---------- 2. ドット絵画面 ----------
+function buildGrid() {
+  const grid = $("grid");
+  for (let i = 0; i < SIZE * SIZE; i++) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.dataset.i = i;
+    grid.appendChild(cell);
+  }
+
+  // 指でなぞって塗れるように、pointerイベントを使う
+  const paint = (e) => {
+    // 指の位置にあるマスを取得
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    if (el && el.classList.contains("cell")) {
+      const i = Number(el.dataset.i);
+      state.pixels[i] = state.color;
+      el.style.background = COLORS[state.color];
+    }
+  };
+  let drawing = false;
+  grid.addEventListener("pointerdown", (e) => { drawing = true; paint(e); });
+  grid.addEventListener("pointermove", (e) => { if (drawing) paint(e); });
+  window.addEventListener("pointerup", () => (drawing = false));
+}
+
+function buildPalette() {
+  const pal = $("palette");
+  for (let c = 1; c <= 6; c++) {
+    const b = document.createElement("button");
+    b.className = "swatch" + (c === state.color ? " selected" : "");
+    b.style.background = COLORS[c];
+    b.setAttribute("aria-label", COLOR_NAMES[c]);
+    b.onclick = () => {
+      state.color = c;
+      pal.querySelectorAll(".swatch").forEach((x) => x.classList.remove("selected"));
+      b.classList.add("selected"); // 選択中の色を大きく光らせる
+    };
+    pal.appendChild(b);
+  }
+}
+
+function clearGrid() {
+  state.pixels.fill(0);
+  document.querySelectorAll(".cell").forEach((c) => (c.style.background = COLORS[0]));
+}
+
+// ---------- 3. カスタマイズ画面 ----------
+function buildOptions(containerId, list, key, onPick) {
+  const box = $(containerId);
+  list.forEach((item, i) => {
+    const b = document.createElement("button");
+    b.className = "opt" + (state[key] === i ? " selected" : "");
+    b.innerHTML = `<span class="ico">${item.icon}</span>${item.name}`;
+    b.onclick = () => {
+      state[key] = i;
+      box.querySelectorAll(".opt").forEach((x) => x.classList.remove("selected"));
+      b.classList.add("selected");
+      if (onPick) onPick(i);
+    };
+    box.appendChild(b);
+  });
+}
+
+// ---------- 4. 名前入力画面 ----------
+function setupName() {
+  const input = $("name-input");
+  const updateCount = () => ($("name-count").textContent = [...input.value].length);
+  input.addEventListener("input", updateCount);
+
+  // 記号ボタン
+  SYMBOLS.forEach((sym) => {
+    const b = document.createElement("button");
+    b.textContent = sym;
+    b.onclick = () => {
+      if ([...input.value].length < 10) input.value += sym;
+      updateCount();
+    };
+    $("symbols").appendChild(b);
+  });
+}
+
+// ---------- 5. カード完成画面 ----------
+function makeCard() {
+  const name = $("name-input").value.trim() || "なまえなし";
+
+  // カードにドット絵を描く
+  const ctx = $("card-canvas").getContext("2d");
+  const px = 200 / SIZE;
+  state.pixels.forEach((c, i) => {
+    ctx.fillStyle = COLORS[c];
+    ctx.fillRect((i % SIZE) * px, Math.floor(i / SIZE) * px, px, px);
+  });
+
+  $("card-name").textContent = name;
+  $("card-no").textContent = "No." + String(Math.floor(Math.random() * 9000) + 1000); // かざりの番号
+  $("card-effect").textContent = EFFECTS[state.effect].icon + " " + EFFECTS[state.effect].name;
+  $("card-sound").textContent = SOUNDS[state.sound].icon + " " + SOUNDS[state.sound].name;
+
+  // エフェクトの絵文字をカード上にふわふわ表示
+  const fx = $("fx");
+  fx.innerHTML = "";
+  for (let i = 0; i < 8; i++) {
+    const s = document.createElement("span");
+    s.textContent = EFFECTS[state.effect].icon;
+    s.style.left = Math.random() * 90 + "%";
+    s.style.top = 40 + Math.random() * 55 + "%";
+    s.style.animationDelay = Math.random() * 2.4 + "s";
+    fx.appendChild(s);
+  }
+
+  // ★ QRコードに入れるJSON（Unity側で読み込む形式）
+  const data = { name: name, pixels: state.pixels.join(""), effect: state.effect, sound: state.sound };
+  const json = JSON.stringify(data); // 空白なしで短く
+
+  // 小さいQR（カード右下）と大きいQR（拡大表示）の2つを描く
+  try {
+    drawQR($("qr-small"), json);
+    drawQR($("qr-big"), json);
+  } catch (e) {
+    $("qr-big").textContent = "QRを作れませんでした: " + (e && e.message ? e.message : e);
+  }
+
+  show("screen-card");
+  playSound(state.sound);
+}
+
+// ---------- 初期化 ----------
+function init() {
+  buildGrid();
+  buildPalette();
+  buildOptions("effects", EFFECTS, "effect");
+  buildOptions("sounds", SOUNDS, "sound", playSound);
+  setupName();
+
+  $("btn-start").onclick = () => show("screen-draw");
+  $("btn-clear").onclick = clearGrid;
+  $("btn-draw-next").onclick = () => show("screen-custom");
+  $("btn-custom-next").onclick = () => show("screen-name");
+  $("btn-make").onclick = makeCard;
+  // QR拡大：小さいQRをタップで開く／「とじる」か外側タップで閉じる
+  $("qr-mini").onclick = () => $("modal").classList.add("open");
+  $("btn-close").onclick = () => $("modal").classList.remove("open");
+  $("modal").onclick = (e) => { if (e.target === $("modal")) $("modal").classList.remove("open"); };
+  $("btn-restart").onclick = () => location.reload(); // 最初からやり直し
+
+  // 「もどる」ボタン（data-back に戻り先の画面idが書いてある）
+  document.querySelectorAll("[data-back]").forEach((b) => {
+    b.onclick = () => show(b.dataset.back);
+  });
+}
+init();
+
+</script>
+</body>
+</html>
