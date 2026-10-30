@@ -458,6 +458,27 @@ select:focus {
     font-weight: 700;
 }
 
+/* ---------- QRへジャンプ ---------- */
+#qrJumpButton {
+    position: fixed;
+    right: max(14px, env(safe-area-inset-right));
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    z-index: 30;
+    width: 58px;
+    height: 58px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #06121f;
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: 0 10px 24px rgba(77, 125, 255, 0.45);
+    cursor: pointer;
+}
+
+#qrJumpButton:active {
+    transform: scale(0.94);
+}
 
 .footer-note {
     text-align: center;
@@ -492,160 +513,367 @@ select:focus {
     }
 }
 
-/* ===== 工程ごとの画面（ステップ式） ===== */
-body { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
-.step { display: none; }
-.step.active { display: block; }
-.progress { height: 8px; margin-top: 8px; background: rgba(255,255,255,.12); border-radius: 99px; overflow: hidden; }
-.progress-bar { height: 100%; width: 20%; background: linear-gradient(90deg, var(--accent), #ff6ad5); transition: width .3s; }
-.step-title { margin: 0 0 6px; font-size: 25px; font-weight: 800; }
-.step-lead { margin: 0 0 16px; color: var(--text); font-size: 16px; line-height: 1.6; }
-.big-input { min-height: 60px; font-size: 22px; text-align: center; border-width: 2px; }
-.count-line { margin-top: 8px; text-align: right; color: var(--text-dim); font-size: 14px; }
-.opt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.opt-btn {
-  min-height: 104px; padding: 8px 4px; color: var(--text); font-size: 15px; font-weight: 800;
-  background: var(--field); border: 3px solid var(--field-border); border-radius: 16px;
-}
-.opt-btn .ico { display: block; margin-bottom: 4px; font-size: 38px; }
-.opt-btn.selected { border-color: var(--accent); background: rgba(121,220,255,.22); box-shadow: 0 0 16px rgba(121,220,255,.4); }
-.opt-btn:active { transform: scale(.96); }
-.mode-button { min-height: 52px; font-size: 17px; }
-.action-button { min-height: 52px; font-size: 15px; }
-.selected-color { font-size: 16px; }
+/* ---------- 3ステップの制作フロー ---------- */
+.wizard-step { display: none; }
+.wizard-step.is-active { display: block; animation: step-in .22s ease-out; }
+@keyframes step-in { from {opacity:0; transform:translateY(8px)} to {opacity:1; transform:translateY(0)} }
+.wizard-progress { display:flex; align-items:center; justify-content:center; gap:7px; margin: 5px 4px 17px; }
+.progress-item {display:flex; flex-direction:column; align-items:center; gap:5px; color:var(--text-dim); min-width:69px;}
+.progress-item span {display:grid;place-items:center;width:31px;height:31px;border-radius:50%;background:rgba(255,255,255,.09);border:1px solid var(--card-border);font-size:13px;font-weight:800;}
+.progress-item small {font-size:11px;font-weight:700;}
+.progress-item.current {color:var(--accent);}
+.progress-item.current span {background:var(--accent);color:#06121f;border-color:var(--accent);}
+.progress-item.done span {background:rgba(151,230,168,.16);border-color:var(--good);color:var(--good);}
+.progress-line {height:1px;background:rgba(255,255,255,.18);flex:1;max-width:65px;transform:translateY(-9px);}
+.wizard-navigation {display:flex;gap:10px; margin: 14px 0 20px;}
+.wizard-navigation .action-button {flex:1;}
+.wizard-navigation button[hidden] {display:none;}
+.step-description {font-size:14px;line-height:1.7;color:var(--text-dim);margin:0 0 15px;}
+#designPreview {display:block;width:min(100%,220px);height:auto;margin:0 auto 22px;border-radius:50%;border:2px solid rgba(160,150,220,.35);background:radial-gradient(circle,#2a2542,#12101d);}
+/* QRは元ファイルと同じ生成サイズ・表示サイズを維持する */
 
-/* 下に固定の「もどる／つぎへ」バー */
-.step-nav {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-  padding: 10px max(14px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
-  background: rgba(11,14,26,.9); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  border-top: 1px solid rgba(255,255,255,.1);
-}
-.step-nav-inner { display: flex; gap: 10px; width: min(100%, 720px); margin: 0 auto; }
-.nav-btn { flex: 1; min-height: 58px; border: none; border-radius: 16px; font-size: 19px; font-weight: 800; color: #06121f; }
-.nav-btn.back { flex: 0 0 34%; color: var(--text); background: var(--field); border: 1px solid var(--field-border); }
-.nav-btn.next { background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: 0 6px 18px rgba(77,125,255,.35); }
-.nav-btn:active { transform: scale(.97); }
-.nav-msg { min-height: 20px; margin: 0 auto 6px; text-align: center; color: #ffd27a; font-size: 14px; font-weight: 700; width: min(100%, 720px); }
 
-.step-no { margin-bottom: 4px; color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: .18em; }
-.step-title { font-size: 21px; letter-spacing: .02em; }
-.step-lead { color: var(--text-dim); font-size: 14px; }
-.big-input { min-height: 54px; font-size: 19px; text-align: left; border-width: 1px; }
-.opt-btn { min-height: 88px; font-size: 14px; border-width: 1px; border-radius: 14px; }
-.opt-btn .ico { font-size: 28px; }
-.opt-btn.selected { border-color: var(--accent); background: rgba(121,220,255,.14); box-shadow: 0 0 0 2px rgba(121,220,255,.35), 0 6px 18px rgba(77,125,255,.25); }
-.nav-btn { min-height: 54px; font-size: 16px; border-radius: 13px; }
-.mode-button, .action-button { font-size: 15px; }
-.selected-color { font-size: 13px; }
-.progress { height: 4px; }
+/* ===== RAY HANABI STUDIO: 来場者向けデザイン ===== */
+:root {--bg:#080c20;--card:rgba(21,28,55,.91);--card-border:rgba(166,188,255,.18);--field:rgba(255,255,255,.075);--field-border:rgba(182,202,255,.22);--text:#fff8f7;--text-dim:#bac5df;--accent:#ffcf77;--accent2:#ff7fa9;--good:#a5efd4;}
+body {background:radial-gradient(ellipse 70% 35% at 90% 0%,rgba(128,87,230,.23),transparent),radial-gradient(ellipse 80% 40% at 0% 55%,rgba(40,110,196,.14),transparent),#080c20;background-attachment:fixed;}
+.app-bar {background:rgba(9,13,31,.92);border-bottom:1px solid rgba(255,255,255,.11);}
+.app-title {font-size:17px;letter-spacing:.09em;font-weight:900;}
+.brand-spark {color:#ffd27b;}
+.app-sub {font-size:11px;letter-spacing:.04em;}
+.badge {background:linear-gradient(110deg,#ffdb8a,#ff92ad);font-size:11px;letter-spacing:.04em;}
+.container {padding-top:12px;}
+.intro-hero {position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(244,193,238,.22);border-radius:22px;padding:25px 22px 23px;margin-bottom:19px;background:linear-gradient(115deg,rgba(31,34,84,.97),rgba(33,21,61,.94));box-shadow:0 16px 34px rgba(0,0,0,.18);}
+.hero-sky {position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:radial-gradient(#ffffffb0 1px,transparent 1px),radial-gradient(#ffdbab99 1px,transparent 1px);background-size:51px 51px,79px 79px;background-position:8px 14px,29px 38px;opacity:.8;}
+.firework-art {position:absolute;color:#ffd590;text-shadow:0 0 22px currentColor;line-height:1;}
+.firework-one {font-size:105px;right:7px;top:5px;opacity:.43;}
+.firework-two {font-size:61px;right:91px;bottom:-8px;color:#ff9bbd;opacity:.45;}
+.firework-three {font-size:34px;right:26px;bottom:34px;color:#91dcff;opacity:.75;}
+.hero-kicker {font-size:10px;letter-spacing:.21em;font-weight:900;color:#ffdc9c;margin-bottom:9px;}
+.intro-hero h1 {font-size:clamp(23px,6.5vw,32px);line-height:1.42;letter-spacing:.035em;margin:0 0 11px;font-weight:900;}
+.intro-hero h1 em {font-style:normal;color:#ffd58b;}
+.intro-hero p {font-size:12px;color:#e0e6ff;line-height:1.85;margin:0;max-width:330px;}
+.wizard-progress {margin:2px 0 19px;gap:4px;}
+.progress-item {min-width:80px;gap:7px;}
+.progress-item span {width:43px;height:43px;font-size:22px;border:2px solid rgba(255,255,255,.13);background:#1c2544;box-shadow:0 5px 13px #0002;}
+.progress-item small {font-size:11px;white-space:nowrap;}
+.progress-item.current span {background:linear-gradient(135deg,#ffe6a1,#ff8db6);border-color:#ffe4a2;color:#30132b;box-shadow:0 0 0 5px rgba(255,199,122,.10),0 6px 20px rgba(255,141,180,.20);}
+.progress-item.current {color:#ffe0a3;}
+.progress-item.done span {color:#a5efd4;background:rgba(60,170,144,.14);border-color:#75d9bc;}
+.progress-line {height:2px;max-width:50px;background:linear-gradient(90deg,#474666,#78677d);}
+.card {border-radius:22px;padding:19px 16px 20px;box-shadow:0 16px 35px #0003;}
+.card-title {font-size:clamp(17px,4.8vw,21px);display:flex;align-items:center;gap:10px;}
+.section-number {display:inline-grid;place-items:center;flex:none;width:37px;height:37px;border-radius:12px;background:linear-gradient(140deg,#ffdc92,#ff99b9);color:#31182b;font-size:13px;font-weight:900;}
+.chip {color:#f5dca9;background:rgba(255,208,138,.11);border:1px solid rgba(255,208,138,.2);}
+.step-description {font-size:13px;color:#d2daef;margin:1px 0 20px;line-height:1.8;}
+.micro-label {font-size:12px;font-weight:850;color:#f9e1bb;letter-spacing:.02em;margin:14px 0 10px;}
+.micro-label span {font-size:10px;color:#aebbd5;font-weight:600;margin-left:4px;}
+.mode-buttons {background:#0e1531;padding:5px;border-radius:14px;}
+.mode-button {min-height:45px;border-radius:10px;}
+.mode-button.active {background:linear-gradient(115deg,#ffdf9b,#ff9bbd);color:#28152a;box-shadow:0 5px 16px rgba(255,163,170,.18);}
+#palette {justify-content:center;gap:10px 9px;padding:9px 5px 11px;background:rgba(6,10,29,.37);border-radius:16px;}
+.color-button {width:43px;height:43px;box-shadow:0 3px 9px #0004;}
+.color-button.selected {box-shadow:0 0 0 3px #101632,0 0 0 6px #ffda95,0 5px 16px #0008;}
+.selected-color {margin-top:12px;background:rgba(255,255,255,.045);border-radius:11px;padding:10px;}
+.selected-color strong {color:#ffe0a4;}
+.canvas-label {margin-top:23px;text-align:center;}
+#editor {border:3px solid rgba(255,206,144,.48);box-shadow:0 0 0 6px rgba(255,208,147,.055),0 0 36px rgba(162,111,252,.20),inset 0 0 55px #0008;}
+.editor-info {color:#a8b4d0;font-size:11px;}
+.action-button {border-radius:13px;min-height:49px;}
+.action-button.primary {background:linear-gradient(115deg,#ffdf99,#ff9cba);color:#32182a;box-shadow:0 8px 23px rgba(255,152,171,.23);}
+.wizard-navigation {margin-top:14px;}
+.wizard-navigation #nextStep {min-height:59px;font-size:16px;font-weight:900;}
+.wizard-navigation #prevStep {flex:.45;}
+.field label {font-size:13px;color:#e6d6c9;}
+input,select {border-radius:13px;min-height:51px;}
+#designPreview {border:3px solid rgba(255,212,146,.38);box-shadow:0 0 35px rgba(255,156,207,.13);margin-bottom:24px;}
+.preview-label {text-align:center;}
+.launch-instruction {text-align:center;font-size:15px;line-height:1.95;background:rgba(255,217,153,.075);border:1px solid rgba(255,218,153,.14);border-radius:14px;padding:13px 9px;margin-bottom:18px;}
+.launch-instruction strong {color:#ffe0a4;}
+/* QR画像の生成ピクセル数・CSS上の幅は元のHTMLと同一。拡大縮小しない。 */
+#qrcode {margin-top:12px;}
+#qrPanel .action-buttons {margin-top:17px;}
+.footer-note {line-height:1.6;padding:0 14px 10px;}
+@media(max-width:380px) {.intro-hero {padding:20px 16px;}.progress-item {min-width:73px;}.progress-item small {font-size:10px;}.card {padding:16px 11px;}.firework-one {right:-17px;}}
+
+
+/* === Mobile-first single-screen exhibition layout === */
+html, body {height:100%; overscroll-behavior:none;}
+body {height:100dvh; min-height:0; overflow:hidden; padding-bottom:0; display:flex; flex-direction:column;}
+.app-bar {position:relative; flex:none; padding:calc(5px + env(safe-area-inset-top)) 12px 5px;}
+.app-title {font-size:15px;} .app-sub {font-size:9px;} .badge {font-size:9px;padding:3px 7px;}
+.container {width:min(100%,560px); flex:1; min-height:0; display:flex; flex-direction:column; padding:4px 10px calc(6px + env(safe-area-inset-bottom)); overflow:hidden;}
+.intro-hero {display:none;}
+.wizard-progress {flex:none; margin:2px 0 6px; gap:3px;}
+.progress-item {min-width:65px; gap:2px;}
+.progress-item span {width:25px;height:25px;font-size:14px;border-width:1px;}
+.progress-item small {font-size:10px;}
+.progress-line {transform:translateY(-5px);}
+.card.wizard-step {min-height:0; flex:1; overflow:hidden; margin:0; padding:8px 10px; border-radius:14px; box-shadow:none;}
+.wizard-step.is-active {display:flex;flex-direction:column; animation:none;}
+.card-head {flex:none;margin-bottom:4px;}
+.card-title {font-size:15px;gap:6px;}
+.section-number {width:25px;height:25px;border-radius:8px;font-size:11px;}
+.chip {font-size:10px;padding:2px 7px;}
+.step-description {font-size:11px;line-height:1.35;margin:0 0 5px;}
+.micro-label {font-size:10px;margin:3px 0 4px;}
+.micro-label span {font-size:9px;}
+.mode-buttons {flex:none; margin:0 0 3px;padding:2px;}
+.mode-button {min-height:28px;padding:2px 8px;font-size:12px;}
+#palette {flex:none;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px 2px;padding:4px 2px;border-radius:10px;}
+.color-button {width:min(100%,34px);height:clamp(23px,4.4dvh,34px);min-width:0;justify-self:center;border-width:1px;}
+.color-button[data-color-index="0"]::after {font-size:19px;}
+.selected-color {flex:none;margin:3px 0 0;padding:3px;font-size:10px;}
+.canvas-label {flex:none;margin:5px 0 3px;}
+.editor-wrap {flex:1 1 auto;min-height:0;min-width:0;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:center;}
+#editor {width:auto;height:auto;aspect-ratio:1/1;flex:none;max-width:100%;max-height:100%;width: min(100%, 340px); height:auto;border-width:2px;}
+.editor-wrap {container-type:normal;}
+.editor-info {display:none;}
+.action-buttons {flex:none;margin-top:5px;gap:6px;}
+.action-button {min-height:34px;padding:5px 7px;font-size:11px;border-radius:9px;}
+.wizard-navigation {flex:none;margin:5px 0 0;gap:6px;}
+.wizard-navigation #nextStep {min-height:43px;font-size:14px;}
+.footer-note {display:none;}
+#designPreview {width:auto;height:min(18dvh,120px);max-width:100%;margin:0 auto 6px;}
+.preview-label {margin:2px 0 3px;}
+.form-grid {flex:1;min-height:0;display:flex;flex-direction:column;gap:6px;justify-content:center;}
+.field label {font-size:11px;margin-bottom:3px;}
+input,select {min-height:40px;padding:6px 9px;font-size:16px;}
+#qrPanel {align-items:center;justify-content:flex-start;}
+#qrPanel .card-head {align-self:stretch;}
+.launch-instruction {flex:none;font-size:12px;line-height:1.45;margin:3px 0 7px;padding:7px;align-self:stretch;}
+#qrcode {flex:none;margin:0 auto;padding:14px;max-width:100%;}
+#qrcode canvas {max-width:100%;height:auto;}
+.qr-summary {font-size:11px;margin:7px 0 0;line-height:1.4;}
+#qrPanel .action-buttons {width:100%;margin-top:auto;}
+.json-details {display:none;}
+#status {min-height:0;margin-top:2px;font-size:10px;}
+@media (max-height:700px) {
+ .app-sub {display:none;}
+ .step-description {display:none;}
+ .micro-label {margin:2px 0;}
+ .selected-color {display:none;}
+ .canvas-label {display:block;}
+ .color-button {height:clamp(21px,4.2dvh,29px);}
+ .card.wizard-step {padding:5px 8px;}
+ .wizard-progress {margin:1px 0 3px;}
+ .mode-button {min-height:25px;}
+ .action-button {min-height:30px;}
+ .wizard-navigation #nextStep {min-height:39px;}
+ #designPreview {height:min(14dvh,90px);}
+ .launch-instruction {font-size:11px;margin-bottom:3px;}
+}
+@media (max-height:590px) {
+ .micro-label:not(.canvas-label) {display:none;}
+ .canvas-label {display:none;}
+ .mode-buttons {margin-bottom:2px;}
+ .color-button {height:20px;}
+ .editor-wrap {margin-top:3px;}
+ .launch-instruction {display:none;}
+}
+
+
+/* iOS-friendly stable layout: avoid circular container queries and collapsed canvas */
+html,body { width:100%; }
+body { height:100vh; height:100dvh; }
+#editor { width: min(100%, 340px); height: auto; aspect-ratio:1; min-width:160px; min-height:160px; }
+.editor-wrap { flex:1 1 auto; min-height:160px; }
+@media (max-height:720px) {
+  #editor { width:min(100%, 290px); min-width:145px; min-height:145px; }
+  .editor-wrap { min-height:145px; }
+}
+@media (max-height:620px) {
+  #editor { width:min(100%, 235px); min-width:115px; min-height:115px; }
+  .editor-wrap { min-height:115px; }
+}
+/* If script execution fails, the first step remains visible for diagnosis. */
 </style>
 </head>
 
 <body>
 
 <header class="app-bar">
-    <div class="app-bar-inner" style="display:block">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><div class="app-title">🎆 花火エディタ</div><div class="app-sub">描いた柄が、そのまま花火になります</div></div>
-            <div class="badge" id="stepLabel">1 / 5</div>
+    <div class="app-bar-inner">
+        <div>
+            <div class="app-title">HANABI <span class="brand-spark">✦</span> STUDIO</div>
+            <div class="app-sub">世界にひとつの花火を、夜空へ。</div>
         </div>
-        <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="badge">🎆 RAY 2026</div>
     </div>
 </header>
 
 <main class="container">
-
-    <!-- ① なまえ -->
-    <section class="card step active" data-step="1">
-        <div class="step-no">STEP 1</div><h2 class="step-title">名前をつけよう</h2>
-        <p class="step-lead">花火の名前を入れてね。（10文字まで）</p>
-        <input id="nameInput" class="big-input" type="text" maxlength="10"
-               placeholder="例：花火太郎" autocomplete="off">
-        <div class="count-line"><span id="nameCount">0</span> / 10</div>
+    <section class="intro-hero" aria-label="花火づくりのご案内">
+      <div class="hero-sky" aria-hidden="true"><span class="firework-art firework-one">✳</span><span class="firework-art firework-two">✴</span><span class="firework-art firework-three">✦</span></div>
+      <div class="hero-kicker">YOUR FIREWORK, YOUR STORY</div>
+      <h1>きみだけの花火を<br><em>夜空に咲かせよう。</em></h1>
+      <p>色をぬって、演出を選んで、QRをかざすだけ。<br>3つのステップで花火が完成するよ！</p>
     </section>
 
-    <!-- ② もよう -->
-    <section class="card step" data-step="2">
+    <nav class="wizard-progress" aria-label="制作の進行状況">
+      <div class="progress-item current" data-progress="0"><span>✎</span><small>① 色をぬる</small></div>
+      <div class="progress-line"></div>
+      <div class="progress-item" data-progress="1"><span>✧</span><small>② 演出を選ぶ</small></div>
+      <div class="progress-line"></div>
+      <div class="progress-item" data-progress="2"><span>↗</span><small>③ 打ち上げ</small></div>
+    </nav>
+
+    <section class="card wizard-step is-active" data-step="0">
         <div class="card-head">
-            <div><div class="step-no">STEP 2</div><h2 class="step-title" style="margin:0">柄を描こう</h2></div>
+            <div class="card-title"><span class="section-number">01</span> 花火に色をぬろう！</div>
             <div class="chip" id="paintedCount">着色 0</div>
         </div>
-        <p class="step-lead">色を選んで、丸を指でなぞって塗ろう。</p>
 
+        <p class="step-description">好きな色をタップして、丸いキャンバスをなぞってみよう。自由に描いてOK！</p>
+        <div class="micro-label">① ぬり方を選ぼう</div>
         <div class="mode-buttons">
-            <button id="drawButton" class="mode-button active" type="button">✏️ 描く</button>
-            <button id="eraseButton" class="mode-button" type="button">消す</button>
+            <button
+                id="drawButton"
+                class="mode-button active"
+                type="button"
+            >
+                ✏️ 描く
+            </button>
+
+            <button
+                id="eraseButton"
+                class="mode-button"
+                type="button"
+            >
+                消す
+            </button>
         </div>
 
+        <div class="micro-label">② 好きな色を選ぼう</div>
         <div id="palette"></div>
-        <div class="selected-color">選択中：<strong id="selectedColorName">赤</strong></div>
 
-        <div class="editor-wrap"><div id="editor"></div></div>
-        <span id="cellCount" hidden></span>
+        <div class="selected-color">
+            選択中：<strong id="selectedColorName">赤</strong>
+        </div>
+
+        <div class="micro-label canvas-label">③ 花火を描こう！ <span>指でなぞってもOK</span></div>
+        <div class="editor-wrap">
+            <div id="editor"></div>
+        </div>
+
+        <div class="editor-info">
+            <span>六角格子7層＋外周24セル</span>
+            <span id="cellCount">151セル</span>
+        </div>
 
         <div class="action-buttons">
-            <button id="clearButton" class="action-button danger" type="button">全部消す</button>
-            <button id="fillButton" class="action-button" type="button">選択色で全体を塗る</button>
+            <button
+                id="clearButton"
+                class="action-button danger"
+                type="button"
+            >
+                全消去
+            </button>
+
+            <button
+                id="fillButton"
+                class="action-button"
+                type="button"
+            >
+                選択色で全体を塗る
+            </button>
         </div>
     </section>
 
-    <!-- ③ エフェクト -->
-    <section class="card step" data-step="3">
-        <div class="step-no">STEP 3</div><h2 class="step-title">エフェクトを選ぼう</h2>
-        <p class="step-lead">花火が開くときのエフェクトを選ぼう。</p>
-        <div class="opt-grid" id="effectButtons"></div>
-        <select id="effectSelect" hidden>
-            <option value="0">炎</option><option value="1">雷</option><option value="2">星</option>
-            <option value="3">風</option><option value="4">爆発</option>
-        </select>
+    <section class="card wizard-step" data-step="1">
+        <div class="card-head"><div class="card-title"><span class="section-number">02</span> 花火をプロデュース！</div></div>
+        <p class="step-description">もうすぐ完成！ 花火に名前をつけて、光り方と音を選んでね。</p><div class="micro-label preview-label">あなたの花火</div>
+        <canvas id="designPreview" width="240" height="240" aria-label="描いた花火のプレビュー"></canvas>
+        <div class="form-grid">
+            <div class="field">
+                <label for="nameInput">名前（10文字まで）</label>
+                <input
+                    id="nameInput"
+                    type="text"
+                    maxlength="10"
+                    value="firework"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="field">
+                <label for="effectSelect">エフェクト</label>
+                <select id="effectSelect">
+                    <option value="0">炎</option>
+                    <option value="1">雷</option>
+                    <option value="2">星</option>
+                    <option value="3">風</option>
+                    <option value="4">爆発</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="soundSelect">サウンド</label>
+                <select id="soundSelect">
+                    <option value="0">シュッ</option>
+                    <option value="1">キラ</option>
+                    <option value="2">ドン</option>
+                    <option value="3">ピコ</option>
+                    <option value="4">バシュ</option>
+                </select>
+            </div>
+        </div>
     </section>
 
-    <!-- ④ サウンド -->
-    <section class="card step" data-step="4">
-        <div class="step-no">STEP 4</div><h2 class="step-title">サウンドを選ぼう</h2>
-        <p class="step-lead">タップすると音が聞けるよ。好きなものを選んでね。</p>
-        <div class="opt-grid" id="soundButtons"></div>
-        <select id="soundSelect" hidden>
-            <option value="0">シュッ</option><option value="1">キラ</option><option value="2">ドン</option>
-            <option value="3">ピコ</option><option value="4">バシュ</option>
-        </select>
-    </section>
+    <section class="card wizard-step" data-step="2" id="qrPanel">
+        <div class="card-head">
+            <div class="card-title"><span class="section-number">03</span> 花火が完成したよ！</div>
+            <div class="chip">READY TO LAUNCH</div>
+        </div>
 
-    <!-- ⑤ かんせい（QR） -->
-    <section class="card step" data-step="5" id="qrPanel">
-        <div class="step-no">STEP 5</div><h2 class="step-title">完成！</h2>
-        <p class="step-lead">このQRをゲームで読み込んでね。</p>
-
+        <p class="step-description launch-instruction">🎇 あとはこのQRコードを<strong>展示のカメラにかざすだけ！</strong><br>あなたの花火が夜空に打ち上がるよ。</p>
         <div id="qrcode"></div>
+
         <div class="qr-summary" id="qrSummary"></div>
 
-        <div id="qrError">QRコードを作れませんでした。スタッフに伝えてください。</div>
-
-        <div class="action-buttons" style="grid-template-columns:1fr">
-            <button id="downloadButton" class="action-button primary" type="button">QR画像を保存</button>
+        <div id="qrError">
+            QRコードライブラリを読み込めませんでした。
+            インターネット接続を確認してください。
         </div>
-        <div id="status" class="status"></div>
 
-        <!-- スタッフ用（ふだんはとじている） -->
         <details class="json-details">
-            <summary>スタッフ用：QRの中身</summary>
-            <textarea id="jsonOutput" readonly spellcheck="false"></textarea>
-            <div class="action-buttons" style="grid-template-columns:1fr">
-                <button id="copyButton" class="action-button" type="button">中身をコピー</button>
-            </div>
+            <summary>QRの中身を表示</summary>
+            <textarea
+                id="jsonOutput"
+                readonly
+                spellcheck="false"
+            ></textarea>
         </details>
+
+        <div class="action-buttons">
+            <button
+                id="copyButton"
+                class="action-button primary"
+                type="button"
+            >
+                QRの中身をコピー
+            </button>
+
+            <button
+                id="downloadButton"
+                class="action-button"
+                type="button"
+            >
+                QR画像を保存
+            </button>
+        </div>
+
+        <div id="status" class="status"></div>
     </section>
+
+    <div class="wizard-navigation">
+      <button type="button" id="prevStep" class="action-button" hidden>← 戻る</button>
+      <button type="button" id="nextStep" class="action-button primary">次へ！ 演出を選ぶ →</button>
+    </div>
+    <p class="footer-note">✦ 前の画面に戻っても、描いた花火はそのまま残るよ。</p>
 
 </main>
 
-<nav class="step-nav">
-    <div class="nav-msg" id="navMsg"></div>
-    <div class="step-nav-inner">
-        <button id="backButton" class="nav-btn back" type="button">◀ 戻る</button>
-        <button id="nextButton" class="nav-btn next" type="button">次へ ▶</button>
-    </div>
-</nav>
+
 
 <script>
 "use strict";
@@ -779,7 +1007,6 @@ const selectedColorNameElement =
 
 const qrSummaryElement =
     document.getElementById("qrSummary");
-
 
 const cells = [];
 
@@ -1305,7 +1532,7 @@ clearButton.addEventListener(
 
         updateCellColors();
         updateOutput();
-        setStatus("全部消しました");
+        setStatus("全セルを消去しました");
     }
 );
 
@@ -1327,10 +1554,9 @@ fillButton.addEventListener(
 
         updateCellColors();
         updateOutput();
-        setStatus("全部塗りました");
+        setStatus("全セルを塗りました");
     }
 );
-
 
 function pack4BitBytes(colorValues)
 {
@@ -1778,7 +2004,7 @@ copyButton.addEventListener(
             );
 
             setStatus(
-                "コピーしました"
+                "QRの中身をコピーしました"
             );
         }
         catch(error)
@@ -1791,7 +2017,7 @@ copyButton.addEventListener(
             );
 
             setStatus(
-                "コピーしました"
+                "QRの中身をコピーしました"
             );
         }
     }
@@ -1799,7 +2025,7 @@ copyButton.addEventListener(
 
 downloadButton.addEventListener(
     "click",
-    async () =>
+    () =>
     {
         const canvas =
             qrcodeElement.querySelector(
@@ -1834,42 +2060,6 @@ downloadButton.addEventListener(
             return;
         }
 
-        // 公開ページ（アーティファクト）では、ダウンロード用の機能で保存する
-        if(window.claude && typeof window.claude.use === "function")
-        {
-            const downloads = await window.claude.use("downloads");
-
-            if(downloads)
-            {
-                try
-                {
-                    const binary = atob(source.split(",")[1]);
-                    const data = new Uint8Array(binary.length);
-
-                    for(let i = 0; i < binary.length; i++)
-                    {
-                        data[i] = binary.charCodeAt(i);
-                    }
-
-                    await downloads.save({
-                        filename: "firework-qr.png",
-                        data: new Blob([data], { type: "image/png" })
-                    });
-
-                    setStatus("保存しました");
-                }
-                catch(error)
-                {
-                    if(!error || error.code !== "declined")
-                    {
-                        setStatus("保存できませんでした");
-                    }
-                }
-
-                return;
-            }
-        }
-
         const link =
             document.createElement("a");
 
@@ -1885,106 +2075,101 @@ downloadButton.addEventListener(
         link.remove();
 
         setStatus(
-            "保存しました"
+            "QR画像を保存しました"
         );
     }
 );
 
-const resizeObserver =
-    new ResizeObserver(
-        () =>
-        {
-            layoutGrid();
-        }
-    );
+// ResizeObserver is optional on older in-app browsers.
+if (typeof ResizeObserver !== "undefined") {
+    const resizeObserver = new ResizeObserver(() => layoutGrid());
+    resizeObserver.observe(editor);
+}
+window.addEventListener("resize", () => requestAnimationFrame(layoutGrid));
+if (window.visualViewport) window.visualViewport.addEventListener("resize", () => requestAnimationFrame(layoutGrid));
 
-resizeObserver.observe(editor);
+// Three-step UI: existing editor state and QR binary format are preserved.
+let currentStep = 0;
+const stepSections = Array.from(document.querySelectorAll(".wizard-step"));
+const progressItems = Array.from(document.querySelectorAll(".progress-item"));
+const prevStepButton = document.getElementById("prevStep");
+const nextStepButton = document.getElementById("nextStep");
 
+function updateDesignPreview() {
+    const canvas = document.getElementById("designPreview");
+    const ctx = canvas.getContext("2d");
+    const size = canvas.width;
+    ctx.clearRect(0, 0, size, size);
+    const gradient = ctx.createRadialGradient(120,120,10,120,120,120);
+    gradient.addColorStop(0,"#2a2542");
+    gradient.addColorStop(1,"#12101d");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0,0,size,size);
+    const spacing = size * 0.428 / 10.5;
+    const diameter = Math.min(23, spacing * 1.78);
+    for (const cell of cells) {
+        const x = size / 2 + spacing * Math.sqrt(3) * (cell.q + cell.r / 2);
+        const y = size / 2 + spacing * 1.5 * cell.r;
+        ctx.beginPath();
+        ctx.arc(x, y, diameter / 2, 0, Math.PI * 2);
+        ctx.fillStyle = COLORS[cell.color];
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,.15)";
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+    }
+}
+
+function showStep(step) {
+    currentStep = Math.max(0, Math.min(2, step));
+    stepSections.forEach((section, index) => {
+        const active = index === currentStep;
+        section.classList.toggle("is-active", active);
+        section.setAttribute("aria-hidden", String(!active));
+    });
+    progressItems.forEach((item, index) => {
+        item.classList.toggle("current", index === currentStep);
+        item.classList.toggle("done", index < currentStep);
+        if (index === currentStep) item.setAttribute("aria-current", "step");
+        else item.removeAttribute("aria-current");
+    });
+    prevStepButton.hidden = currentStep === 0;
+    nextStepButton.hidden = currentStep === 2;
+    nextStepButton.textContent = currentStep === 0
+        ? "次へ！ 演出を選ぶ →"
+        : "完成！ QRを表示する →";
+    if (currentStep === 1) updateDesignPreview();
+    if (currentStep === 2) updateOutput();
+    // Avoid unsupported scroll options on older iOS WebViews.
+    // The app is fixed-height, so scrolling is not necessary.
+    if (currentStep === 0) requestAnimationFrame(layoutGrid);
+}
+
+prevStepButton.addEventListener("click", () => showStep(currentStep - 1));
+nextStepButton.addEventListener("click", () => showStep(currentStep + 1));
+
+showStep(0); // Make the editor visible BEFORE measuring its dimensions.
 buildPalette();
 createGrid();
 updateModeButtons();
 updatePaletteSelection();
 updateOutput();
+requestAnimationFrame(() => { layoutGrid(); requestAnimationFrame(layoutGrid); });
 
-
-// ===================== ここから：工程ごとの画面 =====================
-const EFFECT_OPTS = [["🔥","炎"],["⚡","雷"],["⭐","星"],["🌪️","風"],["💥","爆発"]];
-const SOUND_OPTS = [
-    ["💨","シュッ","sawtooth",1800,300,0.15],["✨","キラ","sine",1200,2400,0.35],
-    ["🥁","ドン","square",200,40,0.30],["🎮","ピコ","square",800,1200,0.12],
-    ["🚀","バシュ","sawtooth",300,1600,0.30]
-];
-let audioCtx = null;
-function playSound(i)
+if(cells.length !== CELL_TOTAL)
 {
-    const [, , type, from, to, dur] = SOUND_OPTS[i];
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(), t = audioCtx.currentTime;
-    osc.type = type;
-    osc.frequency.setValueAtTime(from, t);
-    osc.frequency.exponentialRampToValueAtTime(to, t + dur);
-    gain.gain.setValueAtTime(0.25, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start(t); osc.stop(t + dur);
+    console.error(
+        "セル数が不正です:",
+        cells.length
+    );
 }
-// 大きなボタンを作り、押したら見えない<select>にも反映する（QRの計算はselectを見ている）
-function buildOptionButtons(boxId, list, select, onPick)
+else
 {
-    const box = document.getElementById(boxId);
-    list.forEach((item, i) =>
-    {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "opt-btn" + (i === 0 ? " selected" : "");
-        b.innerHTML = '<span class="ico">' + item[0] + '</span>' + item[1];
-        b.addEventListener("click", () =>
-        {
-            select.value = String(i);
-            select.dispatchEvent(new Event("change"));
-            box.querySelectorAll(".opt-btn").forEach(x => x.classList.remove("selected"));
-            b.classList.add("selected");
-            if (onPick) onPick(i);
-        });
-        box.appendChild(b);
-    });
+    console.log(
+        "Hex151 ready:",
+        cells.length
+    );
 }
-buildOptionButtons("effectButtons", EFFECT_OPTS, effectSelect);
-buildOptionButtons("soundButtons", SOUND_OPTS, soundSelect, playSound);
-
-// 名前の文字数
-const nameCount = document.getElementById("nameCount");
-nameInput.addEventListener("input", () => { nameCount.textContent = [...nameInput.value].length; });
-
-// 工程の切り替え
-const TOTAL_STEPS = 5;
-const backButton = document.getElementById("backButton");
-const nextButton = document.getElementById("nextButton");
-const navMsg = document.getElementById("navMsg");
-let currentStep = 1;
-
-function showStep(n)
-{
-    currentStep = n;
-    document.querySelectorAll(".step").forEach(s => s.classList.toggle("active", Number(s.dataset.step) === n));
-    document.getElementById("stepLabel").textContent = n + " / " + TOTAL_STEPS;
-    document.getElementById("progressBar").style.width = (n / TOTAL_STEPS * 100) + "%";
-    backButton.style.visibility = n === 1 ? "hidden" : "visible";
-    nextButton.textContent = n === TOTAL_STEPS ? "最初から" : (n === 4 ? "完成 ▶" : "次へ ▶");
-    navMsg.textContent = "";
-    if (n === TOTAL_STEPS) updateOutput();
-    window.scrollTo(0, 0);
-}
-backButton.addEventListener("click", () => { if (currentStep > 1) showStep(currentStep - 1); });
-nextButton.addEventListener("click", () =>
-{
-    if (currentStep === 1 && nameInput.value.trim() === "") { navMsg.textContent = "名前を入力してね"; return; }
-    if (currentStep === 2 && cells.every(c => c.color === 0)) { navMsg.textContent = "好きな色を塗ってね"; return; }
-    if (currentStep === TOTAL_STEPS) { location.reload(); return; }
-    showStep(currentStep + 1);
-});
-showStep(1);
-// ===================== ここまで =====================
 </script>
 
 </body>
