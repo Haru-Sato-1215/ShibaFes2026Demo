@@ -14,678 +14,74 @@ var qrcode=function(){function i(t,r){function a(t,r){g=function(t){for(var r=ne
 </script>
 
 <style>
-:root {
-    color-scheme: dark;
-    --bg: #0b0e1a;
-    --card: rgba(255, 255, 255, 0.05);
-    --card-border: rgba(255, 255, 255, 0.09);
-    --field: rgba(255, 255, 255, 0.07);
-    --field-border: rgba(255, 255, 255, 0.14);
-    --text: #f2f4fa;
-    --text-dim: #a7aec4;
-    --accent: #79dcff;
-    --accent2: #4d7dff;
-    --good: #97e6a8;
-    --bad: #ff8b8b;
-}
 
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
+:root{color-scheme:dark;--bg:#0b1024;--card:#151e3a;--text:#f8f9ff;--muted:#b5c1dc;--accent:#ffca91}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;background:linear-gradient(160deg,#0a1024,#18204a);color:var(--text);display:flex;flex-direction:column;overscroll-behavior:none}
+button,input,select{font:inherit}button{cursor:pointer;touch-action:manipulation}
+.app-bar{flex:none;background:#0c1430;border-bottom:1px solid #ffffff22;padding:calc(7px + env(safe-area-inset-top)) 15px 8px}
+.app-bar-inner{display:flex;align-items:center;justify-content:space-between;max-width:520px;margin:auto}
+.app-title{font-size:17px;font-weight:900;letter-spacing:.09em}
+.brand-spark{color:#ffd48e}.app-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.badge{background:linear-gradient(90deg,#ffcf9a,#ffa4c8);color:#2d1b37;border-radius:20px;padding:6px 10px;font-size:11px;font-weight:800}
+.container{width:min(100%,520px);margin:0 auto;flex:1;min-height:0;display:flex;flex-direction:column;padding:7px 10px calc(6px + env(safe-area-inset-bottom));gap:7px;overflow:hidden}
+.wizard-progress{display:flex;align-items:center;justify-content:center;gap:5px;flex:none;height:39px}
+.progress-item{display:flex;align-items:center;gap:4px;color:#9fa9c7;white-space:nowrap}
+.progress-item span{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#26304f;font-size:12px}
+.progress-item small{font-size:10px;font-weight:700}
+.progress-item.current{color:#ffd2a1}.progress-item.current span{background:#ffca91;color:#302039}
+.progress-item.done{color:#a8f2d0}.progress-line{height:1px;background:#59617d;flex:1;max-width:24px}
+.card{background:rgba(22,31,61,.96);border:1px solid #ffffff22;border-radius:15px}
+.wizard-step{display:none;min-height:0;overflow:hidden;padding:10px}
+.wizard-step.is-active{display:flex;flex:1;flex-direction:column;gap:6px}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}
+.card-title{font-size:15px;font-weight:850;display:flex;align-items:center;gap:8px}
+.section-number{background:linear-gradient(140deg,#ffdfad,#ff9dbc);color:#291e33;font-size:11px;padding:5px 7px;border-radius:8px}
+.chip{background:#ffffff12;color:#c6d2e7;padding:4px 7px;border-radius:15px;font-size:10px;white-space:nowrap}
+.step-description{font-size:11px;color:#c4cce2;line-height:1.4;margin:0;flex:none}
+.micro-label{font-size:11px;font-weight:800;color:#ffdbad;flex:none}
+.canvas-label{display:flex;align-items:center;justify-content:space-between}
+.canvas-label span{color:#b6c4dc;font-size:10px;font-weight:500}
+.mode-buttons{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#0d1532;border-radius:10px;padding:3px;flex:none}
+.mode-button{border:0;border-radius:8px;min-height:32px;background:transparent;color:#bec8e3;font-size:13px;font-weight:800}
+.mode-button.active{background:linear-gradient(110deg,#ffe0a0,#ff9bbd);color:#271d35}
+#palette{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px 2px;flex:none}
+.color-button{width:min(100%,32px);height:auto;aspect-ratio:1 / 1;min-width:0;justify-self:center;align-self:center;border-radius:50%;border:2px solid #ffffff55;padding:0;position:relative;flex-shrink:0}
+.color-button.selected{border-color:white;outline:2px solid #ffca91;outline-offset:1px}
+.color-button[data-color-index="0"]::after{content:"×";position:absolute;inset:0;display:grid;place-items:center;color:white;font-size:19px;font-weight:800}
+.selected-color{font-size:11px;color:#b9c5df;text-align:center;flex:none}
+.selected-color strong{color:white}
+.editor-wrap{flex:1;min-height:0;min-width:0;width:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#editor{position:relative;flex:none;width:200px;height:200px;border-radius:50%;border:2px solid #f2c99b77;background:radial-gradient(circle,#29263d,#111426);touch-action:none;user-select:none;overflow:hidden}
+.cell{position:absolute;display:block;border-radius:50%;padding:0;background:#2f2a44;border:1px solid #ffffff33;transform:translate(-50%,-50%);touch-action:none}
+.editor-info{display:none}
+.action-buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px;flex:none}
+.action-button{min-height:34px;padding:6px 7px;border-radius:9px;background:#26314f;border:1px solid #ffffff25;color:#f9f9ff;font-size:12px;font-weight:750}
+.action-button.primary{background:linear-gradient(100deg,#ffe0a0,#ffa0bd);color:#281e35;border:0;font-weight:900}
+.action-button.danger{color:#ffb4b4}
+.wizard-navigation{flex:none;display:flex;gap:8px}
+.wizard-navigation button{flex:1;min-height:44px;font-size:14px}
+.wizard-navigation button[hidden]{display:none}
+.footer-note{display:none}
+.form-grid{display:flex;flex-direction:column;gap:12px;justify-content:center;flex:1}
+.field label{display:block;color:#d1d8e9;font-size:13px;margin-bottom:6px;font-weight:750}
+.field select,.field input{width:100%;height:48px;background:#0e1632;color:white;border:1px solid #ffffff35;border-radius:10px;padding:8px 12px;font-size:16px}
+#designPreview{width:min(100%,180px);height:auto;aspect-ratio:1;margin:10px auto;border-radius:50%;border:2px solid #ffffff35;flex:none}
+.preview-label{text-align:center}
+#qrPanel{align-items:center}
+#qrPanel .card-head{width:100%}
+.launch-instruction{text-align:center;font-size:13px;line-height:1.5;margin:5px 0}
+#qrcode{display:flex;justify-content:center;align-items:center;background:white;border-radius:14px;padding:14px;flex:none;margin:auto;max-width:100%}
+#qrcode canvas,#qrcode img{display:block;max-width:100%;height:auto}
+.qr-summary{font-size:11px;color:#b9c5de;text-align:center}
+#qrError{display:none;color:#ffaaaa;font-size:12px}
+.json-details{display:none}
+#qrPanel .action-buttons{width:100%}
+#status{font-size:11px;color:#b0ffbf;min-height:0}
+@media(max-height:690px){.container{gap:4px;padding-top:4px}.wizard-progress{height:28px}.wizard-step.is-active{gap:4px;padding:7px}.step-description{display:none}.mode-button{min-height:27px}.color-button{width:min(100%,27px)}.action-button{min-height:30px}.wizard-navigation button{min-height:38px}.micro-label{font-size:10px}}
+@media(max-height:570px){.app-bar{padding-top:4px;padding-bottom:4px}.app-sub{display:none}.wizard-progress{height:23px}.card-title{font-size:13px}.selected-color{display:none}.color-button{width:min(100%,23px)}.mode-button{min-height:24px}.wizard-step.is-active{gap:3px}.micro-label.canvas-label{display:none}}
 
-html,
-body {
-    margin: 0;
-    min-height: 100%;
-    color: var(--text);
-    font-family:
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-}
-
-body {
-    background:
-        radial-gradient(
-            900px 480px at 85% -80px,
-            rgba(121, 220, 255, 0.16),
-            transparent 60%
-        ),
-        radial-gradient(
-            800px 500px at -10% 30%,
-            rgba(122, 92, 255, 0.14),
-            transparent 60%
-        ),
-        radial-gradient(
-            700px 420px at 110% 75%,
-            rgba(255, 120, 160, 0.10),
-            transparent 60%
-        ),
-        var(--bg);
-    background-attachment: fixed;
-    padding-bottom: calc(28px + env(safe-area-inset-bottom));
-}
-
-/* ---------- アプリバー ---------- */
-.app-bar {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    padding:
-        calc(10px + env(safe-area-inset-top))
-        max(16px, env(safe-area-inset-right))
-        10px
-        max(16px, env(safe-area-inset-left));
-    background: rgba(11, 14, 26, 0.78);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.app-bar-inner {
-    width: min(100%, 720px);
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.app-title {
-    font-size: 19px;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-}
-
-.app-sub {
-    color: var(--text-dim);
-    font-size: 11.5px;
-    margin-top: 1px;
-}
-
-.badge {
-    flex: none;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #06121f;
-    font-size: 12px;
-    font-weight: 800;
-}
-
-/* ---------- レイアウト ---------- */
-.container {
-    width: min(100%, 720px);
-    margin: 0 auto;
-    padding: 14px 12px 0;
-}
-
-.card {
-    margin-bottom: 14px;
-    padding: 16px 14px;
-    background: var(--card);
-    border: 1px solid var(--card-border);
-    border-radius: 18px;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
-}
-
-.card-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.card-title {
-    font-size: 15px;
-    font-weight: 800;
-}
-
-.chip {
-    padding: 3px 10px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-dim);
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-/* ---------- フォーム ---------- */
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-}
-
-.field {
-    text-align: left;
-}
-
-.field label {
-    display: block;
-    margin-bottom: 6px;
-    color: var(--text-dim);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-}
-
-input,
-select,
-button,
-textarea {
-    font: inherit;
-}
-
-input,
-select {
-    width: 100%;
-    min-height: 46px;
-    padding: 10px 12px;
-    color: var(--text);
-    background: var(--field);
-    border: 1px solid var(--field-border);
-    border-radius: 11px;
-    outline: none;
-}
-
-input:focus,
-select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(121, 220, 255, 0.22);
-}
-
-/* ---------- モード切替（セグメント） ---------- */
-.mode-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
-    padding: 4px;
-    margin-bottom: 14px;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 12px;
-}
-
-.mode-button {
-    min-height: 42px;
-    padding: 8px 12px;
-    color: var(--text-dim);
-    background: transparent;
-    border: none;
-    border-radius: 9px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-}
-
-.mode-button.active {
-    color: #06121f;
-    background: linear-gradient(135deg, var(--accent), #a5ecff);
-    box-shadow: 0 4px 14px rgba(121, 220, 255, 0.35);
-}
-
-/* ---------- パレット ---------- */
-#palette {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.color-button {
-    width: 46px;
-    height: 46px;
-    padding: 0;
-    border: 2px solid rgba(255, 255, 255, 0.25);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: transform 0.12s, box-shadow 0.12s;
-}
-
-.color-button:active {
-    transform: scale(0.92);
-}
-
-.color-button.selected {
-    border-color: #ffffff;
-    box-shadow:
-        0 0 0 3px var(--bg),
-        0 0 0 5.5px var(--accent),
-        0 6px 16px rgba(0, 0, 0, 0.45);
-    transform: scale(1.08);
-}
-
-.color-button[data-color-index="0"] {
-    position: relative;
-}
-
-.color-button[data-color-index="0"]::after {
-    content: "×";
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    color: #ffffff;
-    font-size: 25px;
-    font-weight: 800;
-}
-
-.selected-color {
-    margin-top: 10px;
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 13px;
-}
-
-.selected-color strong {
-    color: var(--text);
-}
-
-/* ---------- エディタ ---------- */
-.editor-wrap {
-    width: min(100%, 560px);
-    margin: 14px auto 0;
-}
-
-#editor {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    background:
-        radial-gradient(
-            circle at center,
-            #2a2542 0%,
-            #1a1728 68%,
-            #12101d 100%
-        );
-    border: 2px solid rgba(160, 150, 220, 0.35);
-    border-radius: 50%;
-    box-shadow:
-        0 0 0 6px rgba(121, 220, 255, 0.05),
-        0 0 44px rgba(90, 110, 255, 0.20),
-        inset 0 0 60px rgba(0, 0, 0, 0.45);
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-    overscroll-behavior: contain;
-}
-
-.cell {
-    position: absolute;
-    display: block;
-    padding: 0;
-    background: #2f2a44;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    cursor: crosshair;
-    touch-action: none;
-}
-
-.cell:hover {
-    filter: brightness(1.18);
-}
-
-.editor-info {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    width: min(100%, 560px);
-    margin: 10px auto 0;
-    color: var(--text-dim);
-    font-size: 12px;
-}
-
-/* ---------- ボタン ---------- */
-.action-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 9px;
-    margin-top: 14px;
-}
-
-.action-button {
-    min-height: 46px;
-    padding: 9px 12px;
-    color: var(--text);
-    background: var(--field);
-    border: 1px solid var(--field-border);
-    border-radius: 11px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.action-button:active {
-    transform: scale(0.98);
-}
-
-.action-button.primary {
-    color: #06121f;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none;
-    box-shadow: 0 6px 18px rgba(77, 125, 255, 0.35);
-}
-
-.action-button.danger {
-    color: #ffb3b3;
-    border-color: rgba(255, 139, 139, 0.35);
-}
-
-/* ---------- QR ---------- */
-#qrcode {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: fit-content;
-    margin: 4px auto 0;
-    padding: 14px;
-    background: #ffffff;
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-}
-
-#qrcode img,
-#qrcode canvas {
-    display: block;
-    max-width: 100%;
-    height: auto;
-}
-
-.qr-summary {
-    margin-top: 12px;
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 13px;
-    line-height: 1.6;
-}
-
-.qr-summary strong {
-    color: var(--text);
-}
-
-#qrError {
-    display: none;
-    margin-top: 10px;
-    text-align: center;
-    color: var(--bad);
-    font-size: 14px;
-}
-
-.json-details {
-    margin-top: 14px;
-    text-align: left;
-}
-
-.json-details summary {
-    cursor: pointer;
-    color: var(--text-dim);
-    font-size: 13px;
-    font-weight: 700;
-    padding: 6px 2px;
-}
-
-#jsonOutput {
-    width: 100%;
-    height: 170px;
-    margin-top: 6px;
-    padding: 12px;
-    color: #d9e2f2;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 11px;
-    resize: vertical;
-    font-family:
-        "Cascadia Code",
-        "Consolas",
-        monospace;
-    font-size: 11.5px;
-    line-height: 1.55;
-}
-
-.status {
-    min-height: 22px;
-    margin-top: 10px;
-    text-align: center;
-    color: var(--good);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-/* ---------- QRへジャンプ ---------- */
-#qrJumpButton {
-    position: fixed;
-    right: max(14px, env(safe-area-inset-right));
-    bottom: calc(16px + env(safe-area-inset-bottom));
-    z-index: 30;
-    width: 58px;
-    height: 58px;
-    border: none;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #06121f;
-    font-size: 13px;
-    font-weight: 800;
-    box-shadow: 0 10px 24px rgba(77, 125, 255, 0.45);
-    cursor: pointer;
-}
-
-#qrJumpButton:active {
-    transform: scale(0.94);
-}
-
-.footer-note {
-    text-align: center;
-    color: rgba(167, 174, 196, 0.7);
-    font-size: 11px;
-    margin-top: 2px;
-}
-
-@media (min-width: 620px) {
-    .form-grid {
-        grid-template-columns: 2fr 1fr 1fr;
-    }
-}
-
-@media (max-width: 420px) {
-    .container {
-        padding-left: 9px;
-        padding-right: 9px;
-    }
-
-    .card {
-        padding: 14px 11px;
-    }
-
-    #palette {
-        gap: 8px;
-    }
-
-    .color-button {
-        width: 42px;
-        height: 42px;
-    }
-}
-
-/* ---------- 3ステップの制作フロー ---------- */
-.wizard-step { display: none; }
-.wizard-step.is-active { display: block; animation: step-in .22s ease-out; }
-@keyframes step-in { from {opacity:0; transform:translateY(8px)} to {opacity:1; transform:translateY(0)} }
-.wizard-progress { display:flex; align-items:center; justify-content:center; gap:7px; margin: 5px 4px 17px; }
-.progress-item {display:flex; flex-direction:column; align-items:center; gap:5px; color:var(--text-dim); min-width:69px;}
-.progress-item span {display:grid;place-items:center;width:31px;height:31px;border-radius:50%;background:rgba(255,255,255,.09);border:1px solid var(--card-border);font-size:13px;font-weight:800;}
-.progress-item small {font-size:11px;font-weight:700;}
-.progress-item.current {color:var(--accent);}
-.progress-item.current span {background:var(--accent);color:#06121f;border-color:var(--accent);}
-.progress-item.done span {background:rgba(151,230,168,.16);border-color:var(--good);color:var(--good);}
-.progress-line {height:1px;background:rgba(255,255,255,.18);flex:1;max-width:65px;transform:translateY(-9px);}
-.wizard-navigation {display:flex;gap:10px; margin: 14px 0 20px;}
-.wizard-navigation .action-button {flex:1;}
-.wizard-navigation button[hidden] {display:none;}
-.step-description {font-size:14px;line-height:1.7;color:var(--text-dim);margin:0 0 15px;}
-#designPreview {display:block;width:min(100%,220px);height:auto;margin:0 auto 22px;border-radius:50%;border:2px solid rgba(160,150,220,.35);background:radial-gradient(circle,#2a2542,#12101d);}
-/* QRは元ファイルと同じ生成サイズ・表示サイズを維持する */
-
-
-/* ===== RAY HANABI STUDIO: 来場者向けデザイン ===== */
-:root {--bg:#080c20;--card:rgba(21,28,55,.91);--card-border:rgba(166,188,255,.18);--field:rgba(255,255,255,.075);--field-border:rgba(182,202,255,.22);--text:#fff8f7;--text-dim:#bac5df;--accent:#ffcf77;--accent2:#ff7fa9;--good:#a5efd4;}
-body {background:radial-gradient(ellipse 70% 35% at 90% 0%,rgba(128,87,230,.23),transparent),radial-gradient(ellipse 80% 40% at 0% 55%,rgba(40,110,196,.14),transparent),#080c20;background-attachment:fixed;}
-.app-bar {background:rgba(9,13,31,.92);border-bottom:1px solid rgba(255,255,255,.11);}
-.app-title {font-size:17px;letter-spacing:.09em;font-weight:900;}
-.brand-spark {color:#ffd27b;}
-.app-sub {font-size:11px;letter-spacing:.04em;}
-.badge {background:linear-gradient(110deg,#ffdb8a,#ff92ad);font-size:11px;letter-spacing:.04em;}
-.container {padding-top:12px;}
-.intro-hero {position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(244,193,238,.22);border-radius:22px;padding:25px 22px 23px;margin-bottom:19px;background:linear-gradient(115deg,rgba(31,34,84,.97),rgba(33,21,61,.94));box-shadow:0 16px 34px rgba(0,0,0,.18);}
-.hero-sky {position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:radial-gradient(#ffffffb0 1px,transparent 1px),radial-gradient(#ffdbab99 1px,transparent 1px);background-size:51px 51px,79px 79px;background-position:8px 14px,29px 38px;opacity:.8;}
-.firework-art {position:absolute;color:#ffd590;text-shadow:0 0 22px currentColor;line-height:1;}
-.firework-one {font-size:105px;right:7px;top:5px;opacity:.43;}
-.firework-two {font-size:61px;right:91px;bottom:-8px;color:#ff9bbd;opacity:.45;}
-.firework-three {font-size:34px;right:26px;bottom:34px;color:#91dcff;opacity:.75;}
-.hero-kicker {font-size:10px;letter-spacing:.21em;font-weight:900;color:#ffdc9c;margin-bottom:9px;}
-.intro-hero h1 {font-size:clamp(23px,6.5vw,32px);line-height:1.42;letter-spacing:.035em;margin:0 0 11px;font-weight:900;}
-.intro-hero h1 em {font-style:normal;color:#ffd58b;}
-.intro-hero p {font-size:12px;color:#e0e6ff;line-height:1.85;margin:0;max-width:330px;}
-.wizard-progress {margin:2px 0 19px;gap:4px;}
-.progress-item {min-width:80px;gap:7px;}
-.progress-item span {width:43px;height:43px;font-size:22px;border:2px solid rgba(255,255,255,.13);background:#1c2544;box-shadow:0 5px 13px #0002;}
-.progress-item small {font-size:11px;white-space:nowrap;}
-.progress-item.current span {background:linear-gradient(135deg,#ffe6a1,#ff8db6);border-color:#ffe4a2;color:#30132b;box-shadow:0 0 0 5px rgba(255,199,122,.10),0 6px 20px rgba(255,141,180,.20);}
-.progress-item.current {color:#ffe0a3;}
-.progress-item.done span {color:#a5efd4;background:rgba(60,170,144,.14);border-color:#75d9bc;}
-.progress-line {height:2px;max-width:50px;background:linear-gradient(90deg,#474666,#78677d);}
-.card {border-radius:22px;padding:19px 16px 20px;box-shadow:0 16px 35px #0003;}
-.card-title {font-size:clamp(17px,4.8vw,21px);display:flex;align-items:center;gap:10px;}
-.section-number {display:inline-grid;place-items:center;flex:none;width:37px;height:37px;border-radius:12px;background:linear-gradient(140deg,#ffdc92,#ff99b9);color:#31182b;font-size:13px;font-weight:900;}
-.chip {color:#f5dca9;background:rgba(255,208,138,.11);border:1px solid rgba(255,208,138,.2);}
-.step-description {font-size:13px;color:#d2daef;margin:1px 0 20px;line-height:1.8;}
-.micro-label {font-size:12px;font-weight:850;color:#f9e1bb;letter-spacing:.02em;margin:14px 0 10px;}
-.micro-label span {font-size:10px;color:#aebbd5;font-weight:600;margin-left:4px;}
-.mode-buttons {background:#0e1531;padding:5px;border-radius:14px;}
-.mode-button {min-height:45px;border-radius:10px;}
-.mode-button.active {background:linear-gradient(115deg,#ffdf9b,#ff9bbd);color:#28152a;box-shadow:0 5px 16px rgba(255,163,170,.18);}
-#palette {justify-content:center;gap:10px 9px;padding:9px 5px 11px;background:rgba(6,10,29,.37);border-radius:16px;}
-.color-button {width:43px;height:43px;box-shadow:0 3px 9px #0004;}
-.color-button.selected {box-shadow:0 0 0 3px #101632,0 0 0 6px #ffda95,0 5px 16px #0008;}
-.selected-color {margin-top:12px;background:rgba(255,255,255,.045);border-radius:11px;padding:10px;}
-.selected-color strong {color:#ffe0a4;}
-.canvas-label {margin-top:23px;text-align:center;}
-#editor {border:3px solid rgba(255,206,144,.48);box-shadow:0 0 0 6px rgba(255,208,147,.055),0 0 36px rgba(162,111,252,.20),inset 0 0 55px #0008;}
-.editor-info {color:#a8b4d0;font-size:11px;}
-.action-button {border-radius:13px;min-height:49px;}
-.action-button.primary {background:linear-gradient(115deg,#ffdf99,#ff9cba);color:#32182a;box-shadow:0 8px 23px rgba(255,152,171,.23);}
-.wizard-navigation {margin-top:14px;}
-.wizard-navigation #nextStep {min-height:59px;font-size:16px;font-weight:900;}
-.wizard-navigation #prevStep {flex:.45;}
-.field label {font-size:13px;color:#e6d6c9;}
-input,select {border-radius:13px;min-height:51px;}
-#designPreview {border:3px solid rgba(255,212,146,.38);box-shadow:0 0 35px rgba(255,156,207,.13);margin-bottom:24px;}
-.preview-label {text-align:center;}
-.launch-instruction {text-align:center;font-size:15px;line-height:1.95;background:rgba(255,217,153,.075);border:1px solid rgba(255,218,153,.14);border-radius:14px;padding:13px 9px;margin-bottom:18px;}
-.launch-instruction strong {color:#ffe0a4;}
-/* QR画像の生成ピクセル数・CSS上の幅は元のHTMLと同一。拡大縮小しない。 */
-#qrcode {margin-top:12px;}
-#qrPanel .action-buttons {margin-top:17px;}
-.footer-note {line-height:1.6;padding:0 14px 10px;}
-@media(max-width:380px) {.intro-hero {padding:20px 16px;}.progress-item {min-width:73px;}.progress-item small {font-size:10px;}.card {padding:16px 11px;}.firework-one {right:-17px;}}
-
-
-/* === Mobile-first single-screen exhibition layout === */
-html, body {height:100%; overscroll-behavior:none;}
-body {height:100dvh; min-height:0; overflow:hidden; padding-bottom:0; display:flex; flex-direction:column;}
-.app-bar {position:relative; flex:none; padding:calc(5px + env(safe-area-inset-top)) 12px 5px;}
-.app-title {font-size:15px;} .app-sub {font-size:9px;} .badge {font-size:9px;padding:3px 7px;}
-.container {width:min(100%,560px); flex:1; min-height:0; display:flex; flex-direction:column; padding:4px 10px calc(6px + env(safe-area-inset-bottom)); overflow:hidden;}
-.intro-hero {display:none;}
-.wizard-progress {flex:none; margin:2px 0 6px; gap:3px;}
-.progress-item {min-width:65px; gap:2px;}
-.progress-item span {width:25px;height:25px;font-size:14px;border-width:1px;}
-.progress-item small {font-size:10px;}
-.progress-line {transform:translateY(-5px);}
-.card.wizard-step {min-height:0; flex:1; overflow:hidden; margin:0; padding:8px 10px; border-radius:14px; box-shadow:none;}
-.wizard-step.is-active {display:flex;flex-direction:column; animation:none;}
-.card-head {flex:none;margin-bottom:4px;}
-.card-title {font-size:15px;gap:6px;}
-.section-number {width:25px;height:25px;border-radius:8px;font-size:11px;}
-.chip {font-size:10px;padding:2px 7px;}
-.step-description {font-size:11px;line-height:1.35;margin:0 0 5px;}
-.micro-label {font-size:10px;margin:3px 0 4px;}
-.micro-label span {font-size:9px;}
-.mode-buttons {flex:none; margin:0 0 3px;padding:2px;}
-.mode-button {min-height:28px;padding:2px 8px;font-size:12px;}
-#palette {flex:none;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px 2px;padding:4px 2px;border-radius:10px;}
-.color-button {width:min(100%,34px);height:clamp(23px,4.4dvh,34px);min-width:0;justify-self:center;border-width:1px;}
-.color-button[data-color-index="0"]::after {font-size:19px;}
-.selected-color {flex:none;margin:3px 0 0;padding:3px;font-size:10px;}
-.canvas-label {flex:none;margin:5px 0 3px;}
-.editor-wrap {flex:1 1 auto;min-height:0;min-width:0;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:center;}
-#editor {width:auto;height:auto;aspect-ratio:1/1;flex:none;max-width:100%;max-height:100%;width: min(100%, 340px); height:auto;border-width:2px;}
-.editor-wrap {container-type:normal;}
-.editor-info {display:none;}
-.action-buttons {flex:none;margin-top:5px;gap:6px;}
-.action-button {min-height:34px;padding:5px 7px;font-size:11px;border-radius:9px;}
-.wizard-navigation {flex:none;margin:5px 0 0;gap:6px;}
-.wizard-navigation #nextStep {min-height:43px;font-size:14px;}
-.footer-note {display:none;}
-#designPreview {width:auto;height:min(18dvh,120px);max-width:100%;margin:0 auto 6px;}
-.preview-label {margin:2px 0 3px;}
-.form-grid {flex:1;min-height:0;display:flex;flex-direction:column;gap:6px;justify-content:center;}
-.field label {font-size:11px;margin-bottom:3px;}
-input,select {min-height:40px;padding:6px 9px;font-size:16px;}
-#qrPanel {align-items:center;justify-content:flex-start;}
-#qrPanel .card-head {align-self:stretch;}
-.launch-instruction {flex:none;font-size:12px;line-height:1.45;margin:3px 0 7px;padding:7px;align-self:stretch;}
-#qrcode {flex:none;margin:0 auto;padding:14px;max-width:100%;}
-#qrcode canvas {max-width:100%;height:auto;}
-.qr-summary {font-size:11px;margin:7px 0 0;line-height:1.4;}
-#qrPanel .action-buttons {width:100%;margin-top:auto;}
-.json-details {display:none;}
-#status {min-height:0;margin-top:2px;font-size:10px;}
-@media (max-height:700px) {
- .app-sub {display:none;}
- .step-description {display:none;}
- .micro-label {margin:2px 0;}
- .selected-color {display:none;}
- .canvas-label {display:block;}
- .color-button {height:clamp(21px,4.2dvh,29px);}
- .card.wizard-step {padding:5px 8px;}
- .wizard-progress {margin:1px 0 3px;}
- .mode-button {min-height:25px;}
- .action-button {min-height:30px;}
- .wizard-navigation #nextStep {min-height:39px;}
- #designPreview {height:min(14dvh,90px);}
- .launch-instruction {font-size:11px;margin-bottom:3px;}
-}
-@media (max-height:590px) {
- .micro-label:not(.canvas-label) {display:none;}
- .canvas-label {display:none;}
- .mode-buttons {margin-bottom:2px;}
- .color-button {height:20px;}
- .editor-wrap {margin-top:3px;}
- .launch-instruction {display:none;}
-}
-
-
-/* iOS-friendly stable layout: avoid circular container queries and collapsed canvas */
-html,body { width:100%; }
-body { height:100vh; height:100dvh; }
-#editor { width: min(100%, 340px); height: auto; aspect-ratio:1; min-width:160px; min-height:160px; }
-.editor-wrap { flex:1 1 auto; min-height:160px; }
-@media (max-height:720px) {
-  #editor { width:min(100%, 290px); min-width:145px; min-height:145px; }
-  .editor-wrap { min-height:145px; }
-}
-@media (max-height:620px) {
-  #editor { width:min(100%, 235px); min-width:115px; min-height:115px; }
-  .editor-wrap { min-height:115px; }
-}
-/* If script execution fails, the first step remains visible for diagnosis. */
 </style>
 </head>
 
@@ -702,14 +98,7 @@ body { height:100vh; height:100dvh; }
 </header>
 
 <main class="container">
-    <section class="intro-hero" aria-label="花火づくりのご案内">
-      <div class="hero-sky" aria-hidden="true"><span class="firework-art firework-one">✳</span><span class="firework-art firework-two">✴</span><span class="firework-art firework-three">✦</span></div>
-      <div class="hero-kicker">YOUR FIREWORK, YOUR STORY</div>
-      <h1>きみだけの花火を<br><em>夜空に咲かせよう。</em></h1>
-      <p>色をぬって、演出を選んで、QRをかざすだけ。<br>3つのステップで花火が完成するよ！</p>
-    </section>
-
-    <nav class="wizard-progress" aria-label="制作の進行状況">
+<nav class="wizard-progress" aria-label="制作の進行状況">
       <div class="progress-item current" data-progress="0"><span>✎</span><small>① 色をぬる</small></div>
       <div class="progress-line"></div>
       <div class="progress-item" data-progress="1"><span>✧</span><small>② 演出を選ぶ</small></div>
@@ -781,20 +170,9 @@ body { height:100vh; height:100dvh; }
 
     <section class="card wizard-step" data-step="1">
         <div class="card-head"><div class="card-title"><span class="section-number">02</span> 花火をプロデュース！</div></div>
-        <p class="step-description">もうすぐ完成！ 花火に名前をつけて、光り方と音を選んでね。</p><div class="micro-label preview-label">あなたの花火</div>
+        <p class="step-description">もうすぐ完成！ 花火の光り方と音を選んでね。</p><div class="micro-label preview-label">あなたの花火</div>
         <canvas id="designPreview" width="240" height="240" aria-label="描いた花火のプレビュー"></canvas>
         <div class="form-grid">
-            <div class="field">
-                <label for="nameInput">名前（10文字まで）</label>
-                <input
-                    id="nameInput"
-                    type="text"
-                    maxlength="10"
-                    value="firework"
-                    autocomplete="off"
-                >
-            </div>
-
             <div class="field">
                 <label for="effectSelect">エフェクト</label>
                 <select id="effectSelect">
@@ -950,9 +328,6 @@ const EXTRA_COORDINATES = [
     { q:  4, r:  3 },
     { q:  5, r:  2 }
 ];
-
-const nameInput =
-    document.getElementById("nameInput");
 
 const effectSelect =
     document.getElementById("effectSelect");
@@ -1930,18 +1305,6 @@ function updateOutput()
 
     qrSummaryElement.innerHTML = "";
 
-    const namePart =
-        document.createElement("strong");
-
-    namePart.textContent =
-        nameInput.value === ""
-            ? "（名前なし）"
-            : nameInput.value;
-
-    qrSummaryElement.appendChild(namePart);
-    qrSummaryElement.appendChild(
-        document.createElement("br")
-    );
     qrSummaryElement.appendChild(
         document.createTextNode(
             "エフェクト：" + effectName +
@@ -1975,11 +1338,6 @@ function updateOutput()
             error.message;
     }
 }
-
-nameInput.addEventListener(
-    "input",
-    scheduleOutputUpdate
-);
 
 effectSelect.addEventListener(
     "change",
@@ -2082,11 +1440,20 @@ downloadButton.addEventListener(
 
 // ResizeObserver is optional on older in-app browsers.
 if (typeof ResizeObserver !== "undefined") {
-    const resizeObserver = new ResizeObserver(() => layoutGrid());
-    resizeObserver.observe(editor);
+    const resizeObserver = new ResizeObserver(() => fitEditor());
+    resizeObserver.observe(document.querySelector(".editor-wrap"));
 }
-window.addEventListener("resize", () => requestAnimationFrame(layoutGrid));
-if (window.visualViewport) window.visualViewport.addEventListener("resize", () => requestAnimationFrame(layoutGrid));
+window.addEventListener("resize", () => requestAnimationFrame(fitEditor));
+if (window.visualViewport) window.visualViewport.addEventListener("resize", () => requestAnimationFrame(fitEditor));
+
+function fitEditor() {
+    const wrap = document.querySelector(".editor-wrap");
+    if (!wrap || !wrap.clientWidth || !wrap.clientHeight) return;
+    const size = Math.max(40, Math.floor(Math.min(wrap.clientWidth - 4, wrap.clientHeight - 4, 370)));
+    editor.style.width = size + "px";
+    editor.style.height = size + "px";
+    layoutGrid();
+}
 
 // Three-step UI: existing editor state and QR binary format are preserved.
 let currentStep = 0;
@@ -2142,7 +1509,7 @@ function showStep(step) {
     if (currentStep === 2) updateOutput();
     // Avoid unsupported scroll options on older iOS WebViews.
     // The app is fixed-height, so scrolling is not necessary.
-    if (currentStep === 0) requestAnimationFrame(layoutGrid);
+    if (currentStep === 0) requestAnimationFrame(fitEditor);
 }
 
 prevStepButton.addEventListener("click", () => showStep(currentStep - 1));
@@ -2154,7 +1521,7 @@ createGrid();
 updateModeButtons();
 updatePaletteSelection();
 updateOutput();
-requestAnimationFrame(() => { layoutGrid(); requestAnimationFrame(layoutGrid); });
+requestAnimationFrame(() => { fitEditor(); requestAnimationFrame(fitEditor); });
 
 if(cells.length !== CELL_TOTAL)
 {
@@ -2174,4 +1541,3 @@ else
 
 </body>
 </html>
-
