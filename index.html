@@ -73,7 +73,7 @@ button,input,select{font:inherit}button{cursor:pointer;touch-action:manipulation
 #qrPanel .card-head{width:100%}
 .launch-instruction{text-align:center;font-size:13px;line-height:1.5;margin:5px 0}
 #qrcode{display:flex;justify-content:center;align-items:center;background:white;border-radius:14px;padding:14px;flex:none;margin:auto;max-width:100%}
-#qrcode canvas,#qrcode img{display:block;max-width:100%;height:auto}
+#qrcode canvas,#qrcode img{display:block;width:auto;max-width:100%;max-height:max(160px,calc(100dvh - 310px));height:auto;object-fit:contain}
 .qr-summary{font-size:11px;color:#b9c5de;text-align:center}
 #qrError{display:none;color:#ffaaaa;font-size:12px}
 .json-details{display:none}
@@ -1213,7 +1213,7 @@ function renderQrCode(qrBytes)
         Math.max(
             1,
             Math.floor(
-                256 / totalModules
+                384 / totalModules
             )
         );
 
